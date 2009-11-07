@@ -1,0 +1,113 @@
+/* @override http://127.0.0.1:8081/css/community_server.css */
+
+.swarmstable .header {
+	background-color: #C3D9FF;
+	text-align: center;
+	font-weight: bold;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	text-align: left;
+	direction: ltr;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+a.back {}
+
+div.headermenu {
+	text-align: left;
+}
+
+table.comments {
+	width: 100%;
+}
+
+table.comments pre {
+	font-family: Arial, sans-serif;
+}
+
+td.from {
+	width: 150px;
+}
+
+div.login {
+	font-size: 11pt;	
+}
+
+div.footer {
+	width: 100%;
+	margin-top: 10pt;
+	border-top: 1px solid #e0e0e0;
+	text-align: center;
+	font-size: 10pt;
+	color: #919191;
+}
+
+tr.result_odd {
+	background-color: #f4f4f4;
+}
+
+div.results {
+	margin-bottom: 10px;
+}
+
+div.searchnav {
+	margin-top: 5px;
+}
+
+input.searchheader {
+  color: #999999;
+  float: left;
+  margin: 3px;
+  font-size: 19px;
+}
+
+div#searchheader .button {
+  color: black;
+  font-size: 19px;
+	margin-top: 5px;
+	margin-left: 3px;
+}
+
+div.no_oneswarm {
+	text-align: center;
+	display: block;
+	float: right;
+	position: relative;
+	top: 45px;
+	width: 255px;
+	left: 285px;
+	background-color: #fefde7;
+	border: 1px dashed #424aa2;
+	font-size: 10pt;
+}
+
+table.details_table td {
+	vertical-align: top;
+}
+
+div.moderate {
+	display: inline;
+	background-color: #ffe5ea;
+	padding: 2px;
+	border: 1px solid #808080;
+}
+
+table.settingsTable form {
+	margin-bottom: 0;
+}
+
+div.settingsWarning {
+	width: 100%;
+	font-size: 11px;
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+tr.unmoderated {
+	background-color: #ffcfd2;
+}
+

@@ -1,0 +1,11 @@
+
+.osc-footer {
+	font-size: 10px;
+	text-align: center;
+	border-top: 1px solid #d9d9d9;
+}
+
+.osc-loading_panel {
+	background-color: #fff7e2;
+	border: 1px dashed #e0d878;
+}
