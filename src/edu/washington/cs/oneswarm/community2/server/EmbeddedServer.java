@@ -72,6 +72,8 @@ public class EmbeddedServer {
 		REQUIRE_AUTH_FOR_PUBLISH("require.auth.for.publish", Boolean.TRUE),
 		REQUEST_LOG_DIRECTORY("request.log.directory", null), 
 		REQUEST_LOG_RETAIN_DAYS("request.log.retain.days", new Integer(7)),
+		
+		JDBC_PROPS("jdbc.properties", "/tmp/jdbc.properties");
 
 		;
 
@@ -411,7 +413,7 @@ public class EmbeddedServer {
 		jdbc.setProperty("cachetime", "0");
 
 		try {
-			jdbc.store(new FileOutputStream(System.getProperty("jdbc.properties", "/tmp/jdbc.properties")), null);
+			jdbc.store(new FileOutputStream(System.getProperty("jdbc.properties")), null);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -438,7 +440,7 @@ public class EmbeddedServer {
 		int gangliaPort = gangliaHost != null ? Integer.parseInt(System.getProperty(StartupSetting.GANGLIA_PORT.getKey())) : -1;
 
 		try {
-			LogManager.getLogManager().readConfiguration(new FileInputStream("./logging.properties"));
+			LogManager.getLogManager().readConfiguration(new FileInputStream("logging.properties"));
 			System.out.println("read log configuration");
 		} catch (Exception e) {
 			System.err.println("error reading log config: " + e.toString());

@@ -139,7 +139,7 @@ public class CommunityDAO {
 		
 		"CREATE TABLE valid_accounts " +
 		"(" +
-		"	username VARCHAR(256) NOT NULL UNIQUE KEY, " +
+		"	username VARCHAR(128) CHARSET utf8 NOT NULL UNIQUE KEY, " +
 		"	password_hash CHAR(37), " + // hash is SHA1(username + password)
 		"	registered_keys INTEGER DEFAULT 0, "	+ // how many keys have been registered by this identity?
 		"	max_registrations INTEGER DEFAULT 5, " + // how many keys can this account register? 
@@ -212,7 +212,7 @@ public class CommunityDAO {
 		
 		"CREATE TABLE categories " +
 		"(" +
-		"	category VARCHAR(128) NOT NULL PRIMARY KEY" +
+		"	category VARCHAR(128) CHARSET utf8 NOT NULL PRIMARY KEY" +
 		") TYPE=INNODB", 
 		
 		"CREATE TABLE published_swarms \n" +
@@ -224,7 +224,7 @@ public class CommunityDAO {
 		"	num_files INTEGER, \n" +
 		"	total_size INTEGER, \n" +
 		"" +
-		"	category VARCHAR(128) DEFAULT NULL, " +
+		"	category VARCHAR(128) CHARSET utf8 DEFAULT NULL, " +
 		"" +
 		"	uploaded_by BIGINT UNSIGNED, \n" +
 		"" +
@@ -252,7 +252,7 @@ public class CommunityDAO {
 		"CREATE TABLE banned_ips " +
 		"( " +
 		"	ip VARCHAR(16) NOT NULL PRIMARY KEY" +
-		")", 
+		") TYPE=MyISAM", 
 		
 		"CREATE TABLE swarm_extras " +
 		"( " +
@@ -276,7 +276,7 @@ public class CommunityDAO {
 		"	swarmid BIGINT UNSIGNED, " +
 		"	commentid SERIAL PRIMARY KEY, " +
 		"" +
-		"	accountname VARCHAR(256), " + 
+		"	accountname VARCHAR(128) CHARSET utf8 NOT NULL, " + 
 		"" +
 		"	time TIMESTAMP DEFAULT NOW(), " +
 		"" +
@@ -335,7 +335,8 @@ public class CommunityDAO {
 			connect.append("/"+(System.getProperty("db.name")==null ? "community_db" : System.getProperty("db.name")));
 			connect.append("?user=" + System.getProperty("db.user"));
 			connect.append("&password=" + System.getProperty("db.password"));
-			connect.append("&characterEncoding=UTF8&characterSetResults=UTF8");
+			connect.append("&characterEncoding=UTF8&characterSetResults=UTF8&useUnicode=true");
+			
 			logger.finest("DB connect string: " + connect.toString());
 			con = DriverManager.getConnection(connect.toString());
 		}
@@ -345,7 +346,7 @@ public class CommunityDAO {
 			e.printStackTrace();
 		}
 		
-//		drop_tables();
+		drop_tables();
 		check_create_tables();
 		load();
 		
