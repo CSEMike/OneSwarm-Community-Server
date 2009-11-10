@@ -174,7 +174,7 @@ public class CommunityDAO {
 		"	nick VARCHAR(256) NOT NULL, " + // length needs to be at least CommunityConstants.MAX_NICK_LENGTH
 		
 		"	registration_timestamp TIMESTAMP DEFAULT NOW(), " +
-		"	last_refresh_timestamp TIMESTAMP, " +
+		"	last_refresh_timestamp TIMESTAMP DEFAULT '1970-1-1 0:0:0', " + // overcome the only one DEFAULT NOW issue, and need a valid timestamp here. 
 		
 		"	registration_ip VARCHAR(16) NOT NULL, " + 
 		
@@ -483,6 +483,15 @@ public class CommunityDAO {
 				while( rs.next() ) {
 					KeyRegistrationRecord a = id_to_record.get(rs.getLong("A_id"));
 					KeyRegistrationRecord b = id_to_record.get(rs.getLong("B_id"));
+					
+					if( a == null ) { 
+						logger.severe("Null soft state key registration record for ID: " + rs.getLong("A_id"));
+						continue;
+					}
+					
+					if( b == null ) { 
+						logger.severe("Null soft state key registration record for ID: " + rs.getLong("B_id"));	
+					}
 					
 					createFriendLink(a, b, false);
 				}
@@ -1081,12 +1090,10 @@ public class CommunityDAO {
 		id_to_record.put(neu.getID(), neu);
 		topology.put(neu, new HashSet<KeyRegistrationRecord>());
 		
-		synchronized(ips_to_key_counts) {
-			if( ips_to_key_counts.get(remote_ip) == null ) {
-				ips_to_key_counts.put(remote_ip, 1);
-			} else {
-				ips_to_key_counts.put(remote_ip, ips_to_key_counts.get(remote_ip)+1);
-			}
+		if( ips_to_key_counts.get(remote_ip) == null ) {
+			ips_to_key_counts.put(remote_ip, 1);
+		} else {
+			ips_to_key_counts.put(remote_ip, ips_to_key_counts.get(remote_ip)+1);
 		}
 		
 		// TODO: debug, remove me. 
