@@ -41,6 +41,22 @@ public class SwarmPublishServlet extends javax.servlet.http.HttpServlet {
 			return;
 		}
 		
+		if( System.getProperty(EmbeddedServer.Setting.ALLOW_USER_PUBLISHING.getKey()).equals( 
+				Boolean.FALSE.toString()) ) {
+			
+			boolean canModerate = false, isAdmin = false;
+			if( request.getUserPrincipal() != null ) {
+				CommunityAccount user = CommunityDAO.get().getAccountForName(request.getUserPrincipal().getName());
+				canModerate = user.canModerate();
+				isAdmin = user.isAdmin();
+			}
+			
+			if( canModerate == false && isAdmin == false ) { 
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+		}
+		
 		if( ServletFileUpload.isMultipartContent(request) == false ) { 
 			logger.warning("Got a POST to the publish servlet that is not multi-part, dropping.");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

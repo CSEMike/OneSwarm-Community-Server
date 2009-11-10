@@ -20,6 +20,21 @@
 <%	
 boolean badCreate = false;
 if( request.getMethod().equals("POST") ) {
+	
+	CommunityAccount user = null;
+	boolean canModerate = false, isAdmin = false;
+	if( request.getUserPrincipal() != null ) {
+		user = dao.getAccountForName(request.getUserPrincipal().getName());
+		canModerate = user.canModerate();
+		isAdmin = user.isAdmin();
+	}
+	
+	if( System.getProperty(EmbeddedServer.Setting.ALLOW_SIGNUPS.getKey()).equals( 
+			Boolean.FALSE.toString()) && !isAdmin ) {
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		return;
+	}
+	
 	String username = request.getParameter("username");
 	String password1 = request.getParameter("password");
 	String password2 = request.getParameter("password2");

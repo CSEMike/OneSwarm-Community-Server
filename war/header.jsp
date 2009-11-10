@@ -31,6 +31,9 @@
 		baseURL = url.getProtocol() + "://" + url.getHost() + (url.getPort() == -1 ? "" : (":" + url.getPort()));
 	} catch( Exception e ) {}
 	
+	boolean allowSignups = System.getProperty(EmbeddedServer.Setting.ALLOW_SIGNUPS.getKey()).equals( 
+			Boolean.TRUE.toString()) || isAdmin;
+	
 %>
 
   <a href="/"><img align="right" style="position:relative" border="0" src="/img/community_logo.png"/></a>
@@ -109,9 +112,12 @@
 
 <% if( request.getRequestURI().endsWith("logon.jsp") == false ) { %>
 	<div class="login">
-	<% if( request.getUserPrincipal() == null ) { %>
-		<a href="/logon.jsp">Login</a> | <a href="/signup.jsp">Sign up</a>
-	<% } else { %>
+	<% if( request.getUserPrincipal() == null ) {
+		%>	<a href="/logon.jsp">Login</a> <% 
+			if( allowSignups ) { %>
+				| <a href="/signup.jsp">Sign up</a>
+	<% 		}
+	   } else { %>
 		User: <%= request.getUserPrincipal().getName() %> <a href="/logout.jsp">(Logout)</a> | <a href="/changepw.jsp">Change password</a>  
 		
 		<%= isAdmin ? "| <a href=\"/admin/admin.jsp\">Admin UI</a>" : "" %>

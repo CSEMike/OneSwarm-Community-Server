@@ -346,7 +346,7 @@ public class CommunityDAO {
 			e.printStackTrace();
 		}
 		
-		drop_tables();
+//		drop_tables();
 		check_create_tables();
 		load();
 		

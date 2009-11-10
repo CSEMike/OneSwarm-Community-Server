@@ -111,13 +111,15 @@ public class EmbeddedServer {
 		
 		SWARMS_PER_PAGE("swarms.per.page", "Number of swarms per-page in search results, etc.", new Integer(30)),
 		
+		ALLOW_SIGNUPS("allow.signup", "Allow account creation (other than by administrator).", Boolean.TRUE), 
 		REQUIRE_CAPTCHA("signup.requires.captcha", "Require users to complete a CAPTCHA during signup.", Boolean.TRUE),
 		
 		SERVER_NAME("community.server.name", "The server name shown to users.", "OneSwarm Community Server"),
 		ENABLE_RSS("enable.rss.feeds", "Provide RSS feeds.", Boolean.FALSE), RSS_BASE_URL("rss.base.url", "The base URL to use when generating RSS feeds.", ""),
 		
 		INCLUDE_USERNAME_WITH_NICKNAME("include.username.with.nickname", "When returning friends, include both nickname and username.", Boolean.FALSE),
-
+		ALLOW_USER_PUBLISHING("allow.user.publishing", "Allow users to publish. (If false, only moderators can publish.)", Boolean.TRUE), 
+		
 		;
 
 		private String key, help;

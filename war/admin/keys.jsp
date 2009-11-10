@@ -91,9 +91,7 @@
 	
 	<br/>
 	<% if( offset > 0 || offset + MAX_RESULTS < keys.length ) { %> 
-		<div class="searchnav">
-			<!-- offset: <%= offset %> keylen: <%= keys.length %> offset: <%= offset %> -->
-		
+		<div class="searchnav">	
 		<%	if( offset > 0 && keys.length > MAX_RESULTS + offset ) { %>
 				<a href="<%= curr.toString().replace("offset=" + offset, "offset=" + (Math.max(0, offset-MAX_RESULTS))) %>">&laquo; Previous</a> | 
 				<a href="<%= curr.toString().replace("offset=" + offset, "offset=" + (Math.min(offset+MAX_RESULTS, keys.length-MAX_RESULTS))) %>">Next &raquo;</a>

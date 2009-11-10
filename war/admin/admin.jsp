@@ -137,7 +137,8 @@ function edit_maxregs( uid, howmany, curr ) {
 	<a href="admin.jsp?keys">Key management</a> | 
 	<a href="admin.jsp?stats">Statistics</a> | 
 	<a href="admin.jsp?settings">Runtime settings</a> | 
-	<a href="admin.jsp?categories">Categories</a>
+	<a href="admin.jsp?categories">Categories</a> |
+	<a href="/signup.jsp">Create account</a>
 
 <% if( request.getParameter("users") != null ) { %> 
 	<jsp:include page="users.jsp"/>
