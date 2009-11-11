@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
@@ -83,6 +84,7 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		 */
 		if (request.getParameter(CommunityConstants.BASE64_PUBLIC_KEY) == null) {
 			logger.warning("GET request with no key from: " + request.getRemoteAddr());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -298,6 +300,10 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) {
+		
+		if( logger.isLoggable(Level.FINEST) ) { 
+			logger.finest("Got post: " + request.toString());
+		}
 		
 		try {
 			request.setCharacterEncoding("UTF-8");

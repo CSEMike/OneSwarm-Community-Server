@@ -219,13 +219,19 @@ public class EmbeddedServer {
 		Context registrationContext = new Context(mServer, "/community");
 		SecurityHandler secHandler = new SecurityHandler();
 		secHandler.setUserRealm(new OurHashRealm());
-
+		
+		/**
+		 * We need to support POST messages at /community to retain backwards compatibility 
+		 * with 0.6.5 clients. 
+		 */
+		registrationContext.setAllowNullPathInfo(true);
+		
 		List<ConstraintMapping> constraintMappings = new ArrayList<ConstraintMapping>();
 		ConstraintMapping cm = new ConstraintMapping();
 
 		registrationContext.setSecurityHandler(secHandler);
 		registrationContext.addServlet(new ServletHolder(new KeyRegistrationServlet()), "/");
-
+		
 		registrationContext.addFilter(new FilterHolder(new IPServletFilter(whitelist, blacklist)), "/*", org.mortbay.jetty.Handler.ALL);
 
 		/**

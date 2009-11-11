@@ -93,7 +93,8 @@ public class SwarmPublishServlet extends javax.servlet.http.HttpServlet {
 					 category = f.getString();
 					 
 					 // need to validate this against our list of keywords. client may not respect. 
-					 if( CommunityDAO.get().getCategories().contains(category) == false ) { 
+					 if( CommunityDAO.get().getCategories().contains(category) == false ) {
+						 logger.warning("Client offered bad category keyword: " + category + " / " + request.getRemoteAddr());
 						 category = null; 
 					 }
 					 

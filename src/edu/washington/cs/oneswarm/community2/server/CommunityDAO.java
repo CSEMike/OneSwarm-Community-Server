@@ -171,7 +171,7 @@ public class CommunityDAO {
 		
 		"	created_by_account BIGINT UNSIGNED, " +
 		
-		"	nick VARCHAR(256) NOT NULL, " + // length needs to be at least CommunityConstants.MAX_NICK_LENGTH
+		"	nick VARCHAR(256) CHARSET utf8 NOT NULL, " + // length needs to be at least CommunityConstants.MAX_NICK_LENGTH
 		
 		"	registration_timestamp TIMESTAMP DEFAULT NOW(), " +
 		"	last_refresh_timestamp TIMESTAMP DEFAULT '1970-1-1 0:0:0', " + // overcome the only one DEFAULT NOW issue, and need a valid timestamp here. 
@@ -219,7 +219,7 @@ public class CommunityDAO {
 		"(" +
 		"	swarmid SERIAL PRIMARY KEY, \n" +
 		"" +
-		"	name VARCHAR(512) NOT NULL, \n" +
+		"	name VARCHAR(512) CHARSET utf8 NOT NULL, \n" +
 		"" +
 		"	num_files INTEGER, \n" +
 		"	total_size INTEGER, \n" +
@@ -258,7 +258,7 @@ public class CommunityDAO {
 		"( " +
 		"	swarmid BIGINT UNSIGNED PRIMARY KEY, " +
 		
-		"	description TEXT, \n" +
+		"	description TEXT CHARSET utf8, \n" +
 		
 		"	downloads INT UNSIGNED DEFAULT 0, " +
 		"	language CHAR(10) DEFAULT NULL, " + // ISO 639-1 ?
