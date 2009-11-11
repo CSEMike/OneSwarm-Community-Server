@@ -115,7 +115,8 @@ public class EmbeddedServer {
 		REQUIRE_CAPTCHA("signup.requires.captcha", "Require users to complete a CAPTCHA during signup.", Boolean.TRUE),
 		
 		SERVER_NAME("community.server.name", "The server name shown to users.", "OneSwarm Community Server"),
-		ENABLE_RSS("enable.rss.feeds", "Provide RSS feeds.", Boolean.FALSE), RSS_BASE_URL("rss.base.url", "The base URL to use when generating RSS feeds.", ""),
+		ENABLE_RSS("enable.rss.feeds", "Provide RSS feeds.", Boolean.FALSE), 
+		RSS_BASE_URL("rss.base.url", "The base URL to use when generating RSS feeds.", ""),
 		
 		INCLUDE_USERNAME_WITH_NICKNAME("include.username.with.nickname", "When returning friends, include both nickname and username.", Boolean.FALSE),
 		ALLOW_USER_PUBLISHING("allow.user.publishing", "Allow users to publish. (If false, only moderators can publish.)", Boolean.TRUE), 
@@ -388,10 +389,9 @@ public class EmbeddedServer {
 		Properties config = new Properties();
 		try {
 			config.load(new FileInputStream(path));
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (Exception e ) {
+			System.err.println("Error loading configuration file: " + path + "\n" + e.toString());
+			System.exit(-1);
 		}
 		Enumeration<String> params = (Enumeration<String>) config.propertyNames();
 		while (params.hasMoreElements()) {
