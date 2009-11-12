@@ -51,7 +51,7 @@
 
 <jsp:include page="header.jsp"/>
 
-<small>Note: this community server depends on features in a version of OneSwarm that is not yet released. Many things will not work with your client.</small>
+<small>Note: several features of this community server depend on features in a version of OneSwarm that is not yet released.</small>
 
 <h2>Most recent swarms</h2>
 <table width="100%" border="0" class="swarmstable">
