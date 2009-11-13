@@ -1,0 +1,32 @@
+0.7.0pre2:
+- support for concurrently hosting both ssl and non-SSL versions of the server, and support for advertising clients to connect to this when browsing to avoid self-signed certificate errors
+
+0.7.0pre:
+- support for file publishing
+- public web interface with comments, account creation, etc. 
+- rewrite of admin UI
+- significant changes to database schema to support file publishing.
+
+0.65(r6):
+0.65(r5):
+- fixed a possible out-of-memory error for popular community servers due to logging
+
+0.65(r4):
+- adding active users list
+- bugfix: deleting accounts no longer hangs
+- bugfix: cascading delete crash for account removal
+
+0.65(r3):
+- bugfix: account name no longer repeatedly appended to nickname for authenticated servers
+- bugfix: account name lengths properly checked
+
+0.65(r2):
+- bugfix: support for port numbers larger than short_max
+
+0.65:
+- support for IP blacklists
+- default number of threads changed from 10 -> 50
+- default request interval changed from 15 -> 10 minutes
+
+r3:
+- auto-generate a nickname when registering a zero-length name
