@@ -4,7 +4,7 @@
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
-<%@ page import="java.net.URLEncoder" %>
+<%@ page import="edu.washington.cs.oneswarm.community2.utils.URLUTF8Encoder" %>
 
 <%!
 	CommunityDAO dao = CommunityDAO.get();
@@ -40,8 +40,8 @@
 	String flipDesc = request.getParameter("desc") != null ? "&asc" : "&desc";
 
 	String curr = "search.jsp?" + 
-			(keys != null ? "search=" + URLEncoder.encode(keys,"UTF-8") + "&" : "") + 
-			(category != null ? "cat=" + URLEncoder.encode(category, "UTF-8") + "&" : "") +
+			(keys != null ? "search=" + URLUTF8Encoder.encode(keys) + "&" : "") + 
+			(category != null ? "cat=" + URLUTF8Encoder.encode(category) + "&" : "") +
 			"offset=" + offset + flipDesc;
 %>
 

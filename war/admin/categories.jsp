@@ -6,8 +6,7 @@
 
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.shared.*" %>
-<%@ page import="java.net.URLEncoder" %>
-
+<%@ page import="edu.washington.cs.oneswarm.community2.utils.URLUTF8Encoder" %>
 <%@ page import="java.util.*" %>
 
 <%!
@@ -27,7 +26,7 @@
 <ul>
 <% for( String cat : dao.getCategories() ) { %>
 <li>
-	<%= cat %> <small><a href="admin.jsp?delcat=<%= URLEncoder.encode(cat, "UTF-8") %>&ref=<%= URLEncoder.encode("admin.jsp?categories") %>">(Delete)</a></small> 
+	<%= cat %> <small><a href="admin.jsp?delcat=<%= URLUTF8Encoder.encode(cat) %>&ref=<%= URLEncoder.encode("admin.jsp?categories") %>">(Delete)</a></small> 
 </li>
 <% } %>
 </ul>

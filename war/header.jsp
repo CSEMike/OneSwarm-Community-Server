@@ -4,6 +4,8 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.net.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
+<%@ page import="edu.washington.cs.oneswarm.community2.utils.URLUTF8Encoder" %>
+
 <%!
 	CommunityDAO dao = CommunityDAO.get();
 	final boolean DEFAULT_ALLOW_CHAT_ON_SUBSCRIBE = false;
@@ -154,8 +156,9 @@
 <a href="/">Home</a> | 
 <% for( int i=0; i<categories.size(); i++ ) { 
 	String category = categories.get(i);
+	String categoryEncoded = URLUTF8Encoder.encode(category);
 %>
-<a href="/search.jsp?cat=<c:out value="<%= category %>"/>"><%= category %></a>
+<a href="/search.jsp?cat=<c:out value="<%= categoryEncoded %>"/>"><%= category %></a>
 <%
 	if( i < categories.size() - 1 ) { 
 		out.print("|");
