@@ -64,7 +64,9 @@ public class EmbeddedServer {
 		HOST("host", null), 
 		PORT("port", new Integer(8080)),
 		
-		KEYSTORE_PASSWORD("keystore.password", null), SSL("ssl", null),
+		SSL("ssl", null),
+		KEYSTORE_PASSWORD("keystore.password", null), 
+		UNENCRYPTED_PORT("unencrypted.port", null), 
 		
 		INFRASTRUCTURE_PEERS("infrastructure.peers", null),
 		
@@ -351,11 +353,7 @@ public class EmbeddedServer {
 		try {
 			mServer.start();
 
-			logger.info("started embedded server");
-
-			while (true) {
-				Thread.sleep(1000);
-			}
+			logger.info("started embedded server" );
 
 		} catch (UnrecoverableKeyException e) {
 			e.printStackTrace();
@@ -509,7 +507,7 @@ public class EmbeddedServer {
 				MessageDigest digest = MessageDigest.getInstance("SHA-1");
 				digest.update(ks.getCertificate(alias).getEncoded());
 				String encodedBase64Hash = URLEncoder.encode(Base64.encode(digest.digest()), "UTF-8");
-				String oururl = "https://" + (host == null ? "127.0.0.1" : host) + ((port != 443) ? (":" + port) : "") + "?certhash=" + encodedBase64Hash;
+				String oururl = "https://" + (host == null ? "127.0.0.1" : host) + ((port != 443) ? (":" + port) : "") + "/?certhash=" + encodedBase64Hash;
 				CommunityDAO.get().setURL(oururl);
 				logger.info("SSL url with hash\n\n" + oururl + "\n\n");
 
@@ -518,7 +516,7 @@ public class EmbeddedServer {
 				return;
 			}
 		} else {
-			String ourUrl = "http://" + (host == null ? "127.0.0.1" : host) + ((port != 80) ? (":" + port) : "");
+			String ourUrl = "http://" + (host == null ? "127.0.0.1" : host) + ((port != 80) ? (":" + port) : "") ;
 			CommunityDAO.get().setURL(ourUrl);
 		}
 		if (gangliaHost != null) {
@@ -526,6 +524,21 @@ public class EmbeddedServer {
 		}
 		(new EmbeddedServer(host, port, maxThreads, keystorePath, whitelist, blacklist)).start();
 
+		if( System.getProperty(StartupSetting.UNENCRYPTED_PORT.getKey()) != null && 
+				keystorePath != null ) {
+			int alt_port = Integer.parseInt(System.getProperty(StartupSetting.UNENCRYPTED_PORT.getKey()));
+			
+			logger.info("Starting non-ssl server on port: " + alt_port);
+			
+			(new EmbeddedServer(host, alt_port, maxThreads, null, whitelist, blacklist)).start();
+		}
+		
+		try { 
+			while( true ) { 
+				Thread.sleep(1000);
+			}
+		} catch( Exception e ) {}
+		
 	}
 
 	private static void startStatCollector(String host, int port) {

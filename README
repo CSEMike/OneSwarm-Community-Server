@@ -9,7 +9,7 @@ Dependencies:
 
 Getting started requires: 
 1) Installing MySQL 
-2) Modifying the sample-communtiy.conf (at least to include your database info), 
+2) Modifying the sample-communtiy.conf (to include your database info, as well as your SSL certificate if you are using SSL)
 3) (Potentially) changing the JAVA_HOME variable in the start-* script for your platform
 4) Running the start script with your configuration file as an argument
 

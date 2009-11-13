@@ -28,7 +28,27 @@
 	String baseURL = null;
 	try { 
 		URL url = new URL(request.getRequestURL().toString());
-		baseURL = url.getProtocol() + "://" + url.getHost() + (url.getPort() == -1 ? "" : (":" + url.getPort()));
+		
+		/**
+		 * We can't simply rely on the request for these since we want to add 
+		 * SSL URLs always if it's supported, and fall back if required for browsing 
+		 * in the OneSwarm iframe based on the skip SSL setting
+		 */
+		String proto = null, host = url.getHost();
+		int port = Integer.parseInt(System.getProperty(EmbeddedServer.StartupSetting.PORT.getKey()));
+		if( System.getProperty(EmbeddedServer.StartupSetting.SSL.getKey()) != null ) { 
+			proto = "https";
+			// no need if the default
+			if( port == 443 ) { 
+				port = -1;
+			}
+			// may need to override an IP address to use hostname
+			host = System.getProperty(EmbeddedServer.StartupSetting.HOST.getKey());
+		} else { 
+			proto = "http";
+		}
+		
+		baseURL = proto + "://" + host + (port == -1 ? "" : (":" + port) );
 	} catch( Exception e ) {}
 	
 	boolean allowSignups = System.getProperty(EmbeddedServer.Setting.ALLOW_SIGNUPS.getKey()).equals( 
