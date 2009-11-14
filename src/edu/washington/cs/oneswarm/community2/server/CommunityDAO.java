@@ -638,7 +638,7 @@ public class CommunityDAO {
 		return topology.get(inFriend);
 	}
 
-	public synchronized List<KeyRegistrationRecord> getRandomPeers( final String inBase64Key, final int inNumber, boolean updateRefreshTime ) {
+	public synchronized List<KeyRegistrationRecord> getRandomPeers( final String inBase64Key, final int inDesired, final int inMax, boolean updateRefreshTime ) {
 		
 		if( isRegistered(inBase64Key) == false ) {
 			return null;
@@ -669,7 +669,7 @@ public class CommunityDAO {
 		logger.finest("\tShuffled " + candidates.length + " candidates in " + (System.currentTimeMillis() - start));
 		for( KeyRegistrationRecord candidate : candidates ) {
 			// have we found enough?
-			if( friends.size() > Math.max(0.85 * (double)inNumber, 5) ) {
+			if( friends.size() > Math.max(0.85 * (double)inDesired, 5) ) {
 				break;
 			}
 			
@@ -684,7 +684,7 @@ public class CommunityDAO {
 			}
 			
 			// candidate is already past the maximum number allowed
-			if( topology.get(candidate).size() > inNumber ) {
+			if( topology.get(candidate).size() > inMax ) {
 				logger.finest("\tCandidate: " + candidate.getNickname() + " has too many: " + topology.get(candidate).size());
 				continue;
 			} 
@@ -1396,7 +1396,7 @@ public class CommunityDAO {
 		
 		if( mVPN_ids.size() == 0 ) {
 //			out = getNearestPeers(inBase64Key, maxFriendsToReturn, true);
-			out = getRandomPeers(inBase64Key, maxFriendsToReturn, true);
+			out = getRandomPeers(inBase64Key, maxFriendsToReturn, (int)Math.round(1.5 * (double)maxFriendsToReturn), true);
 		} else {
 			out = getVPNList(inBase64Key);
 		}
