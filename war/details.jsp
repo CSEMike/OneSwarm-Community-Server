@@ -37,6 +37,10 @@
 		} else if( request.getParameter("moderated") != null ) {
 			dao.setSwarmModerated(swarmID, request.getParameter("moderated").equals("1"));
 		}
+		
+		if( request.getMethod().equals("POST") && request.getParameter("editDesc") != null ) { 
+			dao.updateDescription(swarmID, request.getParameter("editDesc"));
+		}
 	} 
 
 	PublishedSwarm swarm = dao.getSwarm(swarmID);
@@ -135,7 +139,22 @@
 	<td class="label">Category:</td><td><%= category %></td>
 </tr>
 <tr>
-	<td class="label">Description:</td><td><c:out value="<%= desc %>"/></td>
+	<td class="label">Description:</td><td><c:out value="<%= desc %>"/>
+	
+	<% if( canModerate && request.getMethod().equals("GET") && request.getParameter("editDesc") != null ) { %>
+		<br />Replace with:
+		<form id="descform" name="descform" method="post" action="/details.jsp?id=<%= swarmID %>">
+		  <textarea name="editDesc" id="editDesc" cols="65" rows="10"></textarea>
+		  <br />
+		  <label>
+		  <input type="submit" value="Save" />
+		  </label>
+	</form>
+	<% } else if( canModerate ) { %>
+		<br/><a href="details.jsp?id=<%= swarmID %>&editDesc"><small>(edit)</small></a>
+	<% } %>
+	
+	</td>
 </tr>
 <tr>
 	<td class="label">Size:</td><td><%=StringTools.formatRate(swarm.getTotalSize())%> (<%= swarm.getFileCount() %> files)</td>

@@ -1979,6 +1979,16 @@ public class CommunityDAO {
 			}}).doit();
 	}
 	
+	public void updateDescription( final long id, final String description ) { 
+		(new SQLStatementProcessor<Void>("UPDATE swarm_extras SET description = ? WHERE swarmid = ?") {
+			public Void process( PreparedStatement s ) throws SQLException {
+				s.setString(1, description);
+				s.setLong(2, id);
+				s.executeUpdate();
+				return null;
+			}}).doit();
+	}
+	
 	public boolean hasPermissions( CommunityAccount who, PublishedSwarm swarm ) {
 		if( swarm == null ) { 
 			return false;

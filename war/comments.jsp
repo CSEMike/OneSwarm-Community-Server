@@ -11,7 +11,7 @@
 %>
 
 <%
-	if( request.getMethod().equals("POST") ) {
+	if( request.getMethod().equals("POST") && request.getParameter("comment") != null ) {
 		
 		if( System.getProperty(EmbeddedServer.Setting.DISABLE_COMMENTS.getKey()).equals(
 				Boolean.TRUE.toString()) ) {
