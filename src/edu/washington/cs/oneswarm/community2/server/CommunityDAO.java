@@ -632,6 +632,7 @@ public class CommunityDAO {
 		key_to_record.clear();
 		id_to_record.clear();
 		ips_to_key_counts.clear();
+		topology.clear();
 	}
 	
 	public synchronized Set<KeyRegistrationRecord> getCurrentRandomPeers( KeyRegistrationRecord inFriend ) {
