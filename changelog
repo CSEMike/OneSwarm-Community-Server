@@ -1,3 +1,7 @@
+0.7.0pre3:
+- moderators can edit descriptions
+- fixed memory leak (topology cache not expired for expired keys)
+
 0.7.0pre2:
 - support for concurrently hosting both ssl and non-SSL versions of the server, and support for advertising clients to connect to this when browsing to avoid self-signed certificate errors
 
