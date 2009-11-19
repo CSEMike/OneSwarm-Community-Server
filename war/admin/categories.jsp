@@ -26,7 +26,7 @@
 <ul>
 <% for( String cat : dao.getCategories() ) { %>
 <li>
-	<%= cat %> <small><a href="admin.jsp?delcat=<%= URLUTF8Encoder.encode(cat) %>&ref=<%= URLEncoder.encode("admin.jsp?categories") %>">(Delete)</a></small> 
+	<%= cat %> <small><a href="admin.jsp?delcat=<%= URLUTF8Encoder.encode(cat) %>&ref=<%= "admin.jsp?categories" %>">(Delete)</a></small> 
 </li>
 <% } %>
 </ul>
