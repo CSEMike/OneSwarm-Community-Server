@@ -174,7 +174,7 @@ public class CommunityDAO {
 		"	nick VARCHAR(256) CHARSET utf8 NOT NULL, " + // length needs to be at least CommunityConstants.MAX_NICK_LENGTH
 		
 		"	registration_timestamp TIMESTAMP DEFAULT NOW(), " +
-		"	last_refresh_timestamp TIMESTAMP DEFAULT '1970-1-1 0:0:0', " + // overcome the only one DEFAULT NOW issue, and need a valid timestamp here. 
+		"	last_refresh_timestamp TIMESTAMP DEFAULT '1980-10-10 10:00:00', " + // overcome the only one DEFAULT NOW issue, and need a valid timestamp here. 
 		
 		"	registration_ip VARCHAR(16) NOT NULL, " + 
 		
