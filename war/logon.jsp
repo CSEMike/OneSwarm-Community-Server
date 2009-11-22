@@ -1,13 +1,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
+
 <html>
 <head>
 <link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
-<title>OneSwarm Community Server Login</title></head>
+<title><%= System.getProperty(EmbeddedServer.Setting.SERVER_NAME.getKey()) %>: Login</title></head>
 
 <jsp:include page="header.jsp"/>
 
-<br><br>
+<h3>Login</h3>
 
 <form action="j_security_check" method=post>
 <table border="0" cellpadding="5">
@@ -25,6 +28,8 @@
 </table>
 </form>
 
-
+<% if( Boolean.parseBoolean(System.getProperty(EmbeddedServer.Setting.ALLOW_SIGNUPS.getKey())) == true ) { %>
+Or, <a href="/signup.jsp">create a new account</a>.
+<% } %>
 
 </html>

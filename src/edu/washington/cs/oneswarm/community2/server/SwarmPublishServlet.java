@@ -103,8 +103,16 @@ public class SwarmPublishServlet extends javax.servlet.http.HttpServlet {
 				}
 			}
 			
+			boolean shouldAttribute = true; 
+			
+			try { 
+				shouldAttribute = Boolean.parseBoolean(System.getProperty(EmbeddedServer.Setting.RETAIN_ACCOUNT_INFO.getKey()));
+			} catch( Exception e ) { 
+				e.printStackTrace();
+			}
+			
 			CommunityDAO.get().publish_swarm(torrentbin, previewpng, description, category,  
-					(CommunityAccount) request.getUserPrincipal(), 
+					shouldAttribute ? (CommunityAccount) request.getUserPrincipal() : null, 
 					request.getRemoteAddr()); 
 			
 		} catch( DuplicateSwarmRegistrationException e ) {

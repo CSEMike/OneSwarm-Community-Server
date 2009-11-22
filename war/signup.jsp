@@ -2,16 +2,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <html>
 <head>
-<link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
-<title>OneSwarm Community Server Signup</title></head>
-
-<jsp:include page="header.jsp"/>
 
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.shared.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
 <%@ page import="nl.captcha.Captcha" %>
+
+<link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
+<title><%= System.getProperty(EmbeddedServer.Setting.SERVER_NAME.getKey()) %>: Signup</title></head>
+
+<jsp:include page="header.jsp"/>
 
 <%!
 	CommunityDAO dao = CommunityDAO.get();

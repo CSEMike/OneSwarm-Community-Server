@@ -222,7 +222,7 @@ public class CommunityDAO {
 		"	name VARCHAR(512) CHARSET utf8 NOT NULL, \n" +
 		"" +
 		"	num_files INTEGER, \n" +
-		"	total_size INTEGER, \n" +
+		"	total_size BIGINT, \n" +
 		"" +
 		"	category VARCHAR(128) CHARSET utf8 DEFAULT NULL, " +
 		"" +

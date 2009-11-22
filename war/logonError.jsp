@@ -8,13 +8,14 @@
     "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 
-<head>
-<link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
-<title>OneSwarm Community Server</title></head>
-
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
+
+
+<head>
+<link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
+<title><%= System.getProperty(EmbeddedServer.Setting.SERVER_NAME.getKey()) %></title></head>
 
 <%!
 	CommunityDAO dao = CommunityDAO.get();

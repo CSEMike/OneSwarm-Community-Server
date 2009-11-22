@@ -1,3 +1,10 @@
+0.7.0pre5:
+- added a configuration option to discard account information after authentication when publishing (retain.account.info)
+- added a signup link on the login page (if account creation is enabled on the server)
+
+0.7.0pre4:
+- changed a timestamp constant which caused problems with some versions of mysql
+
 0.7.0pre3:
 - moderators can edit descriptions
 - fixed memory leak (topology cache not expired for expired keys)

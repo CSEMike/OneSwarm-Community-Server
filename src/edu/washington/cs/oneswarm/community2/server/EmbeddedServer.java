@@ -107,6 +107,7 @@ public class EmbeddedServer {
 		DISABLE_COMMENTS("disable.user.comments", "Disallow all comments, even for registered users.", Boolean.FALSE),
 		DISCARD_PREVIEWS("discard.previews", "Discard submitted previews.", Boolean.FALSE), 
 		DONT_DISPLAY_PREVIEWS("dont.display.previews", "Store submitted previews, but do not show them to users.", Boolean.FALSE),
+		RETAIN_ACCOUNT_INFO("retain.account.info", "Log account names when swarms are submitted.", Boolean.TRUE), 
 		
 		KEY_REG_LIMIT_IP("key.registration.limit.ip.default", "The default number of keys that can be registered by a single IP.", new Integer(5)), 
 		KEY_REG_LIMIT_ACCOUNT("key.registration.limit.account.default", "The default key registration limit per account.", new Integer(5)),
