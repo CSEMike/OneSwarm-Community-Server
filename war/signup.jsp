@@ -121,11 +121,11 @@ if( request.getMethod().equals("POST") ) {
   <tr>
   	<td></td><td><img src="captcha.png" /></td>
   </tr>
-  <% } %>
   <tr>
   	<td><div align="right">Text above: </div></td>
     <td><input type="text" width="150px" name="captchaAnswer"></td>
   </tr>
+  <% } %>
   
   <tr>
   	<th colspan="2"><input type="submit" value="Create account"></th>
