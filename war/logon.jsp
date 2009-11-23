@@ -10,6 +10,10 @@
 
 <jsp:include page="header.jsp"/>
 
+<% if( request.getUserPrincipal() != null ) {
+	response.sendRedirect("/files.jsp");
+}%>
+
 <h3>Login</h3>
 
 <form action="j_security_check" method=post>

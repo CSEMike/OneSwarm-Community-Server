@@ -1,3 +1,6 @@
+0.7.0pre6:
+- improved support for completely private servers -- sample security constraint added to web.xml and redirect from logon.jsp
+
 0.7.0pre5:
 - added a configuration option to discard account information after authentication when publishing (retain.account.info)
 - added a signup link on the login page (if account creation is enabled on the server)
