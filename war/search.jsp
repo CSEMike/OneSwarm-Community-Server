@@ -45,8 +45,7 @@
 			"offset=" + offset + flipDesc;
 %>
 
-<%@ page language="java" contentType="text/html; 
-         charset=US-ASCII" pageEncoding="US-ASCII"%>
+<%@ page pageEncoding="UTF-8"%>
 
 <head>
 <link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>

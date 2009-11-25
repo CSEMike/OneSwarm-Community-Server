@@ -2,6 +2,8 @@
 <%@ page import="java.util.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.shared.CommunityConstants" %>
 
+<%@ page pageEncoding="UTF-8"%>
+
 <div class="footer">
 	<% 
 		long started = (Long)session.getAttribute("pageRenderStarted");

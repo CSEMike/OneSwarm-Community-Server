@@ -8,6 +8,9 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
+
+<%@ page pageEncoding="UTF-8"%>
+
 <%!
 	CommunityDAO dao = CommunityDAO.get();
 %>

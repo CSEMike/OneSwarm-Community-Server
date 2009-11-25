@@ -82,7 +82,7 @@
     <welcome-file>files.jsp</welcome-file>
   </welcome-file-list>
 
-<!-- Uncomment to run a private server. (Note: you'll need to change the welcome-file to logon.jsp as well) 
+<!-- Uncomment to run a private server. (Note: you'll need to change the welcome-file to logon.jsp as well)  
  
 <security-constraint>
 	<display-name>Private server constraint</display-name>

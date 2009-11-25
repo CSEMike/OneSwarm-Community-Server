@@ -6,6 +6,8 @@
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.URLUTF8Encoder" %>
 
+<%@ page pageEncoding="UTF-8"%>
+
 <%!
 	CommunityDAO dao = CommunityDAO.get();
 	final boolean DEFAULT_ALLOW_CHAT_ON_SUBSCRIBE = false;

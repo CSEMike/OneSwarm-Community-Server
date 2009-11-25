@@ -3,6 +3,8 @@
 
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 
+<%@ page pageEncoding="UTF-8"%>
+
 <html>
 <head>
 <link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>

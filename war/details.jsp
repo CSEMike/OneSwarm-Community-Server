@@ -10,6 +10,8 @@
 <%@ page import="edu.washington.cs.oneswarm.community2.utils.*" %>
 <%@ page import="org.gudy.azureus2.core3.util.*" %>
 
+<%@ page pageEncoding="UTF-8"%>
+
 <%!
 	CommunityDAO dao = CommunityDAO.get();
 %>

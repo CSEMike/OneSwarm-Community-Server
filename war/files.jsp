@@ -1,8 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<%@ page language="java" contentType="text/html; 
-         charset=US-ASCII" pageEncoding="US-ASCII"%>
+<%@ page pageEncoding="UTF-8"%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" 
     "http://www.w3.org/TR/html4/loose.dtd">
