@@ -1179,8 +1179,9 @@ public class CommunityDAO {
 		
 		return null;
 	}
-
+	
 	public void createAccount(String username, String password, UserRole role) throws DuplicateAccountException, IOException {
+		
 		/**
 		 * Don't use the SQLStatementProcessor here since we're actually expecting SQLExceptions when there 
 		 * are duplicate nicks

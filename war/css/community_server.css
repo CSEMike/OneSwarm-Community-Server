@@ -20,6 +20,10 @@ div.headermenu {
 	text-align: left;
 }
 
+div.motd {
+	text-align: center;
+}
+
 table.comments {
 	width: 100%;
 }

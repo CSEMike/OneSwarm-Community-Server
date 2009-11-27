@@ -118,6 +118,7 @@ public class EmbeddedServer {
 		REQUIRE_CAPTCHA("signup.requires.captcha", "Require users to complete a CAPTCHA during signup.", Boolean.TRUE),
 		
 		SERVER_NAME("community.server.name", "The server name shown to users.", "OneSwarm Community Server"),
+		MOTD("motd", "Message of the day.", null), 
 		ENABLE_RSS("enable.rss.feeds", "Provide RSS feeds.", Boolean.FALSE), 
 		RSS_BASE_URL("rss.base.url", "The base URL to use when generating RSS feeds.", ""),
 		

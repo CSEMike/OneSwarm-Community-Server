@@ -9,26 +9,8 @@
 
 <head>
 
-<script language="JavaScript">
-function post_to_url(path, params, method) {
-    method = method || "post"; // Set method to post by default, if not specified.
-
-    var form = document.createElement("form");
-    form.setAttribute("method", method);
-    form.setAttribute("action", path);
-
-    for(var key in params) {
-        var hiddenField = document.createElement("input");
-        hiddenField.setAttribute("type", "hidden");
-        hiddenField.setAttribute("name", key);
-        hiddenField.setAttribute("value", params[key]);
-
-        form.appendChild(hiddenField);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-}
+<script>
+<jsp:include page="/post.js"/>
 
 function edit_roles( uid, existing, curr ) {
 	var outRoles = window.prompt('Update role: (admin, moderator, user, bozo)', existing)
@@ -46,7 +28,7 @@ function edit_maxregs( uid, howmany, curr ) {
 </script>
 
 <link title="styles" href="../css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
-<title>OneSwarm Community Server: Administration</title></head>
+<title><%= System.getProperty(EmbeddedServer.Setting.SERVER_NAME.getKey()) %>: Administration</title></head>
 
 <%@ page import="edu.washington.cs.oneswarm.community2.server.*" %>
 <%@ page import="java.util.*" %>
@@ -132,12 +114,7 @@ function edit_maxregs( uid, howmany, curr ) {
 
 <jsp:include page="/header.jsp"/>
 
-<strong>Admin: </strong><a href="admin.jsp?users">User management</a> | 
-	<a href="admin.jsp?keys">Key management</a> | 
-	<a href="admin.jsp?stats">Statistics</a> | 
-	<a href="admin.jsp?settings">Runtime settings</a> | 
-	<a href="admin.jsp?categories">Categories</a> |
-	<a href="/signup.jsp">Create account</a>
+<jsp:include page="header.jsp"/>
 
 <% if( request.getParameter("users") != null ) { %> 
 	<jsp:include page="users.jsp"/>

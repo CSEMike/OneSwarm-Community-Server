@@ -28,7 +28,7 @@ need to update the configuration on disk.
  <input type="text" name="<%= s.getKey() %>.val" value="<%= System.getProperty(s.getKey()) != null ? System.getProperty(s.getKey()) : "" %>"/>
  <input type="submit" value="Update" method="POST" class="button">
 </form>
-</td><td><%= s.getHelp() %></td><td><%= s.getDefaultValue().toString() %></td>
+</td><td><%= s.getHelp() %></td><td><%= s.getDefaultValue() != null ? s.getDefaultValue().toString() : "" %></td>
 </tr>
 <% } %>
 </table>

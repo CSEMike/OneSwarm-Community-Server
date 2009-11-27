@@ -12,6 +12,8 @@
 <link title="styles" href="css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
 <title><%= System.getProperty(EmbeddedServer.Setting.SERVER_NAME.getKey()) %>: Signup</title></head>
 
+</head>
+
 <jsp:include page="header.jsp"/>
 
 <%!
@@ -20,10 +22,11 @@
 
 <%	
 boolean badCreate = false;
+boolean canModerate = false, isAdmin = false;
+
 if( request.getMethod().equals("POST") ) {
 	
 	CommunityAccount user = null;
-	boolean canModerate = false, isAdmin = false;
 	if( request.getUserPrincipal() != null ) {
 		user = dao.getAccountForName(request.getUserPrincipal().getName());
 		canModerate = user.canModerate();
@@ -83,7 +86,7 @@ if( request.getMethod().equals("POST") ) {
 			dao.createAccount(username, password1, CommunityDAO.UserRole.USER);
 %>
 			<div>
-			Account created<br/> 
+			Account created: <c:out value="<%= username %>"/><br/> 
 			<h3><a href="/logon.jsp">Log in</a></h3>
 			</div>		
 <%		
@@ -99,7 +102,7 @@ if( request.getMethod().equals("POST") ) {
 
 <br><br>
 
-<% if( request.getMethod().equals("GET") || badCreate ) { %>
+<% if( request.getMethod().equals("GET") || badCreate || isAdmin ) { %>
 
 <form action="/signup.jsp" method=post>
 <table border="0" cellpadding="5">

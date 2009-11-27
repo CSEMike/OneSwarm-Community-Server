@@ -20,6 +20,14 @@
 
 <script language="javascript">
 <jsp:include page="/detect_oneswarm.js"/>
+<jsp:include page="/post.js"/>
+
+function edit_motd( curr ) {
+	var neu = window.prompt('Enter new message', curr)
+	if( neu ) {
+		post_to_url('/files.jsp', {'motd':neu}, 'POST')
+	}
+}
 </script>
 
 </head>
@@ -44,11 +52,23 @@
 		
 		response.addHeader("P3P","CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\"");
 	}
+	
+	if( canModerate && request.getMethod().equals("POST") && request.getParameter("motd") != null ) {
+		System.setProperty(EmbeddedServer.Setting.MOTD.getKey(), request.getParameter("motd"));
+	}
 %>
 
 <BODY>
 
 <jsp:include page="header.jsp"/>
+
+<%  final String motd = System.getProperty(EmbeddedServer.Setting.MOTD.getKey());
+	if( motd != null ) { %>
+		<div class="motd"><c:out value="<%= motd %>"/>
+<%		if( canModerate ) { %>
+			<a href="javascript:edit_motd('<c:out value="<%= motd %>"/>')">(Update)</a>
+<% 		} %></div><%
+ 	}  %>
 
 <h2>Most recent swarms</h2>
 <table width="100%" border="0" class="swarmstable">

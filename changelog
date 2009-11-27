@@ -1,3 +1,9 @@
+0.7.0pre8:
+- support for MOTD and batch account creation
+
+0.7.0pre7:
+- fixed character issues arising from ASCII encoding. Now using UTF-8 on all pages. 
+
 0.7.0pre6:
 - improved support for completely private servers -- sample security constraint added to web.xml and redirect from logon.jsp
 
