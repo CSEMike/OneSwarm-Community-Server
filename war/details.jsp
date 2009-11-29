@@ -25,6 +25,8 @@
 		canModerate = user.canModerate();
 		isAdmin = user.isAdmin();
 	}
+	
+	boolean setModerated = false;
 
 	if( canModerate ) { 
 		if( request.getParameter("remove") != null ) { 
@@ -38,6 +40,7 @@
 			dao.setSwarmCategory(swarmID, request.getParameter("catPopup"));	
 		} else if( request.getParameter("moderated") != null ) {
 			dao.setSwarmModerated(swarmID, request.getParameter("moderated").equals("1"));
+			setModerated = request.getParameter("moderated").equals("1");
 		}
 		
 		if( request.getMethod().equals("POST") && request.getParameter("editDesc") != null ) { 
@@ -80,6 +83,9 @@
 <a href="javascript:self.history.go(-1)">&laquo; Back</a><br/><br/>
 
 <%	if( canModerate ) { 
+	
+		long next_unmoderated = dao.getNextUnmoderatedID();
+	
 		if( swarm.isRemoved() ) { 
 	 %>	<h3>This swarm is marked as removed</h3>
 		<% } %>
@@ -108,6 +114,9 @@
 				}
 			} %>
   </select> <input type="submit" value="Recategorize" /></form>  
+		<% if( next_unmoderated > -1 && setModerated ) { %>
+		| <a href="/details.jsp?id=<%= next_unmoderated %>">Next unmoderated</a> 
+		<% } %>
 		</div><br/><br/>
 <%	} else if( swarm.isRemoved() ) { 
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

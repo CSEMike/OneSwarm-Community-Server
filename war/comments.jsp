@@ -20,11 +20,13 @@
 		}
 		
 		try {
+			boolean keepIP = Boolean.parseBoolean(System.getProperty(EmbeddedServer.Setting.KEEP_COMMENT_IPS.getKey()));
+			
 			dao.postComment(request.getUserPrincipal().getName(), 
 					Long.parseLong(request.getParameter("id")), 
 					request.getParameter("comment"), 
 					request.getParameter("replyTo") == null ? 0 : Long.parseLong(request.getParameter("replyTo")),  
-					request.getRemoteAddr());
+					keepIP ? request.getRemoteAddr() : "0.0.0.0" );
 			
 		} catch( IOException e ) { 
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -80,8 +82,12 @@
 				if( user.canModerate() || c.getAccountName().equals(user.getName()) ) { %> 
 				<br/>
 				<a href="details.jsp?id=<%= swarmID %>&del=<%= c.getCommentID() %>">(Delete)</a><br/>
-				<%= c.getIp() %>
-			<%	}
+				<% boolean showToModerators = Boolean.parseBoolean(System.getProperty(EmbeddedServer.Setting.DISPLAY_COMMENT_IPS_MODERATORS.getKey()));
+					if( user.isAdmin() || 
+					   (user.canModerate() && showToModerators) ) { 
+						out.println(c.getIp());
+					}
+				}
 			}
 			%>
 			

@@ -25,6 +25,13 @@ function edit_maxregs( uid, howmany, curr ) {
 		post_to_url(curr, {'maxregs':outRegs, 'uid':uid, 'ref':curr}, 'GET')
 	}
 }
+
+function reset_password( uid ) {
+	var outPW = window.prompt('Reset password to:', '')
+	if( outPW ) {
+		post_to_url('admin.jsp', {'users':'1', 'uid':uid, 'newPass':outPW}, 'GET')
+	}
+}
 </script>
 
 <link title="styles" href="../css/community_server.css" type="text/css" rel="stylesheet" media="all"/>
@@ -58,6 +65,20 @@ function edit_maxregs( uid, howmany, curr ) {
 	/**
 	 * Take care of actions first. 
 	 */ 
+	if( request.getParameter("newPass") != null ) {
+		try {
+			long uid = Long.parseLong(request.getParameter("uid"));
+			if(  uid > 0 ) {
+				dao.changePassword(dao.getAccountForID(uid).getName(), request.getParameter("newPass"));
+			} else { 
+				throw new Exception("Bad UID: " + uid);
+			}
+		} catch( Exception e ) {
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;	
+		}
+	} 
 	if( request.getParameter("newroles") != null ) { 
 		String newrole = request.getParameter("newroles");
 		dao.updateRole(Long.parseLong(request.getParameter("uid")), newrole);

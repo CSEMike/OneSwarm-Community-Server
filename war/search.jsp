@@ -11,12 +11,16 @@
 %>
 
 <%
-	final int MAX_RESULTS = 30;
-
 	int offset = request.getParameter("offset") == null ? 0 : Integer.parseInt(request.getParameter("offset"));
 	String keys = request.getParameter("search");
 	String category = request.getParameter("cat");
 	String sortBy = request.getParameter("by");
+	
+	int maxResults = Integer.parseInt(System.getProperty(EmbeddedServer.Setting.SWARMS_PER_PAGE.getKey()));
+	// applies for keyword search -- not category. 
+	if( keys != null ) { 
+		maxResults = Integer.parseInt(System.getProperty(EmbeddedServer.Setting.SWARMS_PER_SEARCH.getKey()));
+	}
 	
 	if( sortBy == null ) { 
 		sortBy = "date_uploaded";
@@ -34,7 +38,7 @@
 		uid = Long.parseLong(request.getParameter("uid"));
 	}
 	
-	List<PublishedSwarm> swarms = dao.selectSwarms(keys, category, uid, offset, MAX_RESULTS, sortBy, 
+	List<PublishedSwarm> swarms = dao.selectSwarms(keys, category, uid, offset, maxResults, sortBy, 
 			request.getParameter("desc") != null ? true : false, canModerate );
 
 	String flipDesc = request.getParameter("desc") != null ? "&asc" : "&desc";
@@ -74,16 +78,16 @@
 	
 	<div class="results">Results: <%= keys != null ? keys : "" %> (<%= offset %> through <%= offset + swarms.size() %>)</div>
 	
-	<% if( offset > 0 || swarms.size() == MAX_RESULTS ) { %> 
+	<% if( offset > 0 || swarms.size() == maxResults ) { %> 
 		<div class="searchnav">
-		<%	if( offset > 0 && swarms.size() == MAX_RESULTS ) { %>
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-MAX_RESULTS))) %>">&laquo; Previous</a> | 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+MAX_RESULTS))) %>">Next &raquo;</a>
+		<%	if( offset > 0 && swarms.size() == maxResults ) { %>
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-maxResults))) %>">&laquo; Previous</a> | 
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+maxResults))) %>">Next &raquo;</a>
 		<% 	} else if( offset == 0 ) { %>
 				&laquo; Previous | 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+MAX_RESULTS))) %>">Next &raquo;</a>
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+maxResults))) %>">Next &raquo;</a>
 		<% 	} else { %> 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-MAX_RESULTS))) %>">&laquo; Previous</a> | Next &raquo;
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-maxResults))) %>">&laquo; Previous</a> | Next &raquo;
 		<% } %>
 		</div>
 	<% } %>
@@ -123,16 +127,16 @@
 	
 	<%}%>
 	
-	<% if( offset > 0 || swarms.size() == MAX_RESULTS ) { %> 
+	<% if( offset > 0 || swarms.size() == maxResults ) { %> 
 		<div class="searchnav">
-		<%	if( offset > 0 && swarms.size() == MAX_RESULTS ) { %>
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-MAX_RESULTS))) %>">&laquo; Previous</a> | 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+MAX_RESULTS))) %>">Next &raquo;</a>
+		<%	if( offset > 0 && swarms.size() == maxResults ) { %>
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-maxResults))) %>">&laquo; Previous</a> | 
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+maxResults))) %>">Next &raquo;</a>
 		<% 	} else if( offset == 0 ) { %>
 				&laquo; Previous | 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+MAX_RESULTS))) %>">Next &raquo;</a>
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.min(offset + swarms.size(), offset+maxResults))) %>">Next &raquo;</a>
 		<% 	} else { %> 
-				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-MAX_RESULTS))) %>">&laquo; Previous</a> | Next &raquo;
+				<a href="<%= curr.replace("offset=" + offset, "offset=" + (Math.max(0, offset-maxResults))) %>">&laquo; Previous</a> | Next &raquo;
 		<% } %>
 		</div>
 	<% } %>

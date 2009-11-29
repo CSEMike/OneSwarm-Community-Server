@@ -138,7 +138,8 @@
 			<td><a href="javascript:edit_roles(<%= acct.getID() %>,'<%= rolesStr %>','<%= curr %>')"><c:out value="<%= rolesStr %>"/></a></td>
 			<td>
 			<% if( acct.getID() != 1 ) { %>
-			<a href="<%= curr %>&deluser=<%= acct.getID() %>">Delete</a>
+			<a href="<%= curr %>&deluser=<%= acct.getID() %>">Delete</a> | 
+			<a href="javascript:reset_password('<%= acct.getID() %>')">Password</a>
 			<% } %>
 			</td>
 		</tr>

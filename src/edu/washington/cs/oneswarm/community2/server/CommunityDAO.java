@@ -2016,4 +2016,15 @@ public class CommunityDAO {
 		
 		return true;
 	}
+	
+	public long getNextUnmoderatedID() { 
+		return (new SQLStatementProcessor<Long>("SELECT swarmid FROM published_swarms WHERE needs_moderated = TRUE LIMIT 1") {
+			public Long process( PreparedStatement s ) throws SQLException {
+				ResultSet rs = s.executeQuery();
+				if( rs.next() ) { 
+					return rs.getLong(1);
+				}
+				return -1L;
+			}}).doit();
+	}
 }

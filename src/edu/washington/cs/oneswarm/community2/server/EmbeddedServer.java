@@ -104,15 +104,19 @@ public class EmbeddedServer {
 		
 		REQUIRE_SWARM_MODERATION("require.swarm.moderation", "Don't show submitted swarms until reviewed by a moderator.", Boolean.FALSE), 
 		STORE_TORRENTS("store.torrents", "Store magnet links only. Discard piece data, etc.", Boolean.FALSE), 
-		DISABLE_COMMENTS("disable.user.comments", "Disallow all comments, even for registered users.", Boolean.FALSE),
 		DISCARD_PREVIEWS("discard.previews", "Discard submitted previews.", Boolean.FALSE), 
 		DONT_DISPLAY_PREVIEWS("dont.display.previews", "Store submitted previews, but do not show them to users.", Boolean.FALSE),
-		RETAIN_ACCOUNT_INFO("retain.account.info", "Log account names when swarms are submitted.", Boolean.TRUE), 
+		RETAIN_ACCOUNT_INFO("retain.account.info", "Log account names when swarms are submitted.", Boolean.TRUE),
+		
+		DISABLE_COMMENTS("disable.user.comments", "Disallow all comments, even for registered users.", Boolean.FALSE),
+		KEEP_COMMENT_IPS("keep.comment.ips", "Retain the IP address of users making comments.", Boolean.TRUE),
+		DISPLAY_COMMENT_IPS_MODERATORS("display.comment.ips.moderators", "Display comment IPs, if saved, to moderators.", Boolean.TRUE), 
 		
 		KEY_REG_LIMIT_IP("key.registration.limit.ip.default", "The default number of keys that can be registered by a single IP.", new Integer(5)), 
 		KEY_REG_LIMIT_ACCOUNT("key.registration.limit.account.default", "The default key registration limit per account.", new Integer(5)),
 		
-		SWARMS_PER_PAGE("swarms.per.page", "Number of swarms per-page in search results, etc.", new Integer(30)),
+		SWARMS_PER_PAGE("swarms.per.page", "Number of swarms per-page in category results and files.jsp page.", new Integer(30)),
+		SWARMS_PER_SEARCH("swarms.per.search.result.page", "Number of swarms displayed per-page in search results.", new Integer(30)), 
 		
 		ALLOW_SIGNUPS("allow.signup", "Allow account creation (other than by administrator).", Boolean.TRUE), 
 		REQUIRE_CAPTCHA("signup.requires.captcha", "Require users to complete a CAPTCHA during signup.", Boolean.TRUE),
