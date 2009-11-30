@@ -1,4 +1,7 @@
-/* @override http://127.0.0.1:8081/css/community_server.css */
+/* @override 
+	http://127.0.0.1:8081/css/community_server.css
+	http://127.0.0.1:8082/css/community_server.css
+*/
 
 .swarmstable .header {
 	background-color: #C3D9FF;
@@ -93,10 +96,10 @@ table.details_table td {
 }
 
 div.moderate {
-	display: inline;
 	background-color: #ffe5ea;
 	padding: 2px;
 	border: 1px solid #808080;
+	margin-bottom: 20px;
 }
 
 table.settingsTable form {

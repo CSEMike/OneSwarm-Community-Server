@@ -66,7 +66,7 @@ public class SwarmPublishServlet extends javax.servlet.http.HttpServlet {
 		FileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload(factory);
 		
-		upload.setFileSizeMax(1048576);
+		upload.setFileSizeMax(5*1048576);
 		
 		try {
 			List<FileItem> items = upload.parseRequest(request);

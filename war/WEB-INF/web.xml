@@ -40,7 +40,17 @@
   <servlet-name>rssServlet</servlet-name>
   <servlet-class>edu.washington.cs.oneswarm.community2.server.RSSServlet</servlet-class>
   </servlet>
-  
+
+  <servlet>
+  <servlet-name>updatePreviewServlet</servlet-name>
+  <servlet-class>edu.washington.cs.oneswarm.community2.server.UpdatePreviewServlet</servlet-class>
+  </servlet>
+ 
+	<servlet-mapping>
+		<servlet-name>updatePreviewServlet</servlet-name>
+		<url-pattern>/updatePreview</url-pattern>
+	</servlet-mapping>
+ 
 	<servlet-mapping>
 		<servlet-name>rssServlet</servlet-name>
 		<url-pattern>/rss</url-pattern>
@@ -82,7 +92,7 @@
     <welcome-file>files.jsp</welcome-file>
   </welcome-file-list>
 
-<!-- Uncomment to run a private server. (Note: you'll need to change the welcome-file to logon.jsp as well)  
+<!-- Uncomment to run a private server. (Note: you'll need to change the welcome-file to logon.jsp as well)   
  
 <security-constraint>
 	<display-name>Private server constraint</display-name>

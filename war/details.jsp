@@ -90,8 +90,8 @@
 	 %>	<h3>This swarm is marked as removed</h3>
 		<% } %>
 
-		<div class="moderate">Moderate: 
-		
+		<div style="font-weight:bold">Moderate:</div>
+		<div class="moderate"> 
 			<% if( swarm.isNeeds_moderated() ) { %>
 				<a href="details.jsp?id=<%= swarmID %>&moderated=1">Mark moderated</a> |
 			<% } else { %>
@@ -113,11 +113,17 @@
 					out.println("<option>" + c + "</option>\n");
 				}
 			} %>
-  </select> <input type="submit" value="Recategorize" /></form>  
-		<% if( next_unmoderated > -1 && setModerated ) { %>
+  </select> <input type="submit" value="Recategorize" /></form> <br/>
+  Update preview:
+  <form style="display:inline;" enctype="multipart/form-data" method="post" action="/updatePreview">
+<input type="hidden" name="id" value="<%= swarmID %>" />
+<input type="file" name="previewpng"/>
+<input type="submit" value="Update"/>
+</form>
+  	<% if( next_unmoderated > -1 && setModerated ) { %>
 		| <a href="/details.jsp?id=<%= next_unmoderated %>">Next unmoderated</a> 
 		<% } %>
-		</div><br/><br/>
+		</div>
 <%	} else if( swarm.isRemoved() ) { 
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return;
@@ -143,9 +149,11 @@
 <% if( System.getProperty(EmbeddedServer.Setting.DONT_DISPLAY_PREVIEWS.getKey()).equals(Boolean.FALSE.toString()) &&
 		details.getPreviewPNG() != null ) { %>
 <tr>
-	<td class="label">Preview:</td><td><img src="/preview?id=<%= swarm.getSwarmID() %>" alt="<%= swarm.getName() %>""/></td>
+	<td class="label">Preview:</td><td><img src="/preview?id=<%= swarm.getSwarmID() %>" alt="<%= swarm.getName() %>""/>
+	</td>
 </tr>
 <% } %>
+
 <tr>
 	<td class="label">Category:</td><td><%= category %></td>
 </tr>

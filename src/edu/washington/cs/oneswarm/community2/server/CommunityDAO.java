@@ -1482,6 +1482,16 @@ public class CommunityDAO {
 	public String getURL() { 
 		return mURL;
 	}
+	
+	public void update_preview( final long id, final byte [] previewpng ) {
+		(new SQLStatementProcessor<Void>("UPDATE swarm_extras SET previewpng = ? WHERE swarmid = ?") {
+			public Void process( PreparedStatement s ) throws SQLException {
+				s.setLong(2, id);
+				s.setBytes(1, previewpng);
+				s.executeUpdate();
+				return null;
+			}}).doit();
+	}
 
 	public synchronized void publish_swarm(byte[] torrentbin, byte[] previewpng, final String description, 
 			final String category, final CommunityAccount submitter, 
@@ -1536,7 +1546,7 @@ public class CommunityDAO {
 			if( System.getProperty(EmbeddedServer.Setting.DISCARD_PREVIEWS.getKey()).equals(
 					Boolean.TRUE.toString()) ) {
 				previewpng = null;
-				logger.finer("Discarding preview due to server setting... (" + torrent_name + ")");
+				logger.finer("Discarding preview due to server setting... (for torrent: " + torrent_name + ")");
 			}
 			
 			final Long length_shadow = length;
