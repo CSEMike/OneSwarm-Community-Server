@@ -398,11 +398,19 @@ public class EmbeddedServer {
 
 	private static final void load_config(String path) {
 		Properties config = new Properties();
+		FileInputStream fis = null;
 		try {
-			config.load(new FileInputStream(path));
+			fis = new FileInputStream(path);
+			config.load(fis);
 		} catch (Exception e ) {
 			System.err.println("Error loading configuration file: " + path + "\n" + e.toString());
 			System.exit(-1);
+		} finally {
+			try {
+				if( fis != null ) {
+					fis.close();
+				}
+			} catch( IOException e ) {}
 		}
 		Enumeration<String> params = (Enumeration<String>) config.propertyNames();
 		while (params.hasMoreElements()) {

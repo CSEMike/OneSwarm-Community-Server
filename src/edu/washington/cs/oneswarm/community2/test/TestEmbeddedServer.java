@@ -192,6 +192,10 @@ public class TestEmbeddedServer {
 				
 				BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 				String l = in.readLine();
+				
+				if( l == null ) {
+					throw new IOException("null challenge line");
+				}
 
 				if (l.startsWith(CommunityConstants.CHALLENGE)) {
 					String[] toks = l.split("\\s+");

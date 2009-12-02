@@ -1020,6 +1020,12 @@ public final class CommunityDAO {
 			}
 			finally {
 				try {
+					stmt.close();
+				} catch( SQLException e ) {
+					e.printStackTrace();
+					logger.warning(e.toString());
+				}
+				try {
 					con.close();
 				} catch( SQLException e ) {
 					e.printStackTrace();
@@ -1756,7 +1762,7 @@ public final class CommunityDAO {
 		
 		if( limit > 0 ) { 
 			sb.append( " LIMIT ?" );
-			params.add(new Integer(limit));
+			params.add(Integer.valueOf(limit));
 		}
 		
 		if( offset > 0 ) { 

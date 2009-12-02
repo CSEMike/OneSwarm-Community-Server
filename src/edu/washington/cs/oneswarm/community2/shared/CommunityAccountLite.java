@@ -70,6 +70,6 @@ public class CommunityAccountLite {
 	}
 	
 	public String toString() { 
-		return "Name: " + getName() + " Role: " + getRoles();
+		return "Name: " + getName() + " Roles: " + getRoles().length;
 	}
 }

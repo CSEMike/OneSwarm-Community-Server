@@ -29,8 +29,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -242,7 +244,7 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.warning(e.toString());
-		}
+		} 
 
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -292,10 +294,22 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 
 			logger.finest("XML write done. finished " + request.getRemoteAddr());
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.warning(e.toString());
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			return;
+		} catch (ParserConfigurationException e) {
+			logger.warning(e.toString());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return;
+		} catch (TransformerException e) {
+			logger.warning(e.toString());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return;
+		} finally {
+			if( responseOut != null ) {
+				try { responseOut.close(); } catch( IOException e ) {}
+			}
 		}
 	}
 
