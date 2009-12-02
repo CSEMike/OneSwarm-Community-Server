@@ -202,13 +202,13 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 	private void generateAndSendKeyList(HttpServletRequest request, HttpServletResponse response) {
 		List<KeyRegistrationRecord> nearest = CommunityDAO.get().getPeers(request.getParameter(CommunityConstants.BASE64_PUBLIC_KEY));
 		
-		logger.fine("Got " + nearest.size() + " nearest peers for request " + request.getRemoteAddr());
-
 		if (nearest == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			logger.warning("Got null set of out keys");
 			return;
 		}
+		
+		logger.fine("Got " + nearest.size() + " nearest peers for request " + request.getRemoteAddr());
 
 		/**
 		 * If this is a request for an authenticated server, add the account names 

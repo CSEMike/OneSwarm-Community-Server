@@ -39,7 +39,8 @@ import org.gudy.azureus2.core3.util.ByteFormatter;
 import org.gudy.azureus2.core3.util.SHA1Hasher;
 import org.mortbay.util.TypeUtil;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.jolbox.bonecp.BoneCP;
+import com.jolbox.bonecp.BoneCPConfig;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import edu.washington.cs.oneswarm.community2.shared.DuplicateAccountException;
@@ -65,14 +66,16 @@ import edu.washington.cs.oneswarm.community2.utils.MutableLong;
  * Aside from that, we're at least safe, synchronizing access to the DB connection
  */
 
-public class CommunityDAO {
+public final class CommunityDAO {
 	
 	public static final String EXPIRATION_PROPERTY = EmbeddedServer.Setting.KEY_EXPIRATION_SECONDS.getKey();
 	
 	private static Logger logger = Logger.getLogger(CommunityDAO.class.getName());
 
-	Connection con;
-	private boolean conFree = true;
+//	Connection con;
+	BoneCP connectionPool = null;
+	
+//	private boolean conFree = true;
 	
 	//private int maxRegistrationsPerIP = 5;
 //	private int maxFriendsToReturn = 26;
@@ -81,7 +84,6 @@ public class CommunityDAO {
 	private Map<String, KeyRegistrationRecord> key_to_record = new ConcurrentHashMap<String, KeyRegistrationRecord>();
 	private Map<Long, KeyRegistrationRecord> id_to_record = new ConcurrentHashMap<Long, KeyRegistrationRecord>();
 	private Map<KeyRegistrationRecord, Set<KeyRegistrationRecord>> topology = new ConcurrentHashMap<KeyRegistrationRecord, Set<KeyRegistrationRecord>>();
-	
 	private Map<String, Integer> ips_to_key_counts = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	//private long userTimeout = 1 * 24 * 60 * 60 * 1000; // 1 day
@@ -89,7 +91,6 @@ public class CommunityDAO {
 //	private long userTimeout = 60 * 1000; // 1 minute
 	
 	private String DRIVER = "com.mysql.jdbc.Driver";
-//	private String DB_CONNECT = "jdbc:derby:oneswarm_cdb;create=true;databaseName=community";
 
 	private Set<String> mVPN_ids = new HashSet<String>();
 	
@@ -310,7 +311,7 @@ public class CommunityDAO {
 		return mInst;
 	}
 	
-	public KeyRegistrationRecord [] getRegisteredKeys() { 
+	public synchronized KeyRegistrationRecord [] getRegisteredKeys() { 
 		return peers.toArray(new KeyRegistrationRecord[0]);
 	}
 	
@@ -325,7 +326,7 @@ public class CommunityDAO {
 		{
 			logger.severe(e.toString());
 		}
-		
+
 		try
 		{
 			StringBuilder connect = new StringBuilder();
@@ -333,12 +334,23 @@ public class CommunityDAO {
 			connect.append(System.getProperty("db.host"));
 			connect.append(System.getProperty("db.port") == null ? ":3306" : (":"+System.getProperty("db.port")));
 			connect.append("/"+(System.getProperty("db.name")==null ? "community_db" : System.getProperty("db.name")));
-			connect.append("?user=" + System.getProperty("db.user"));
-			connect.append("&password=" + System.getProperty("db.password"));
-			connect.append("&characterEncoding=UTF8&characterSetResults=UTF8&useUnicode=true");
+//			connect.append("?user=" + System.getProperty("db.user"));
+//			connect.append("&password=" + System.getProperty("db.password"));
+			connect.append("?characterEncoding=UTF8&characterSetResults=UTF8&useUnicode=true");
 			
 			logger.finest("DB connect string: " + connect.toString());
-			con = DriverManager.getConnection(connect.toString());
+//			con = DriverManager.getConnection(connect.toString());
+			
+			BoneCPConfig config = new BoneCPConfig();
+			config.setJdbcUrl(connect.toString());
+			
+			config.setUsername(System.getProperty("db.user"));
+			config.setPassword(System.getProperty("db.password"));
+			
+			config.setMinConnectionsPerPartition(5);
+			config.setMaxConnectionsPerPartition(30);
+			config.setPartitionCount(1);
+			connectionPool = new BoneCP(config); 
 		}
 		catch( SQLException e )
 		{
@@ -365,19 +377,18 @@ public class CommunityDAO {
 					}
 				}
 				
-				synchronized(CommunityDAO.this) {
-					int removedDB = (new SQLStatementProcessor<Integer>("DELETE FROM registered_keys WHERE last_refresh_timestamp < ?") {
-						Integer process(PreparedStatement s) throws SQLException {
-							s.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis() - userTimeout));
-							int removed = s.executeUpdate();
-							return removed;
-						}
-					}).doit();
-					
-					logger.info("Pruned " + removedDB + " old peers");
-					load();
-				}
-			}}, 1000, 60 * 60 * 1000);
+				int removedDB = (new SQLStatementProcessor<Integer>("DELETE FROM registered_keys WHERE last_refresh_timestamp < ?") {
+					Integer process(PreparedStatement s) throws SQLException {
+						s.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis() - userTimeout));
+						int removed = s.executeUpdate();
+						return removed;
+					}
+				}).doit();
+				
+				logger.info("Pruned " + removedDB + " old peers");
+				
+				load();
+			}}, 1000, 15 * 60 * 1000);
 		
 		/**
 		 * Drain the lazy DB queue
@@ -402,7 +413,7 @@ public class CommunityDAO {
 		lazyDrain.setDaemon(true);
 		lazyDrain.start();
 	}
-	
+
 	private void check_create_tables() {
 		
 		List<String> tables = (new SQLStatementProcessor<List<String>>("SHOW TABLES") {
@@ -426,15 +437,26 @@ public class CommunityDAO {
 		
 	}
 
-	private synchronized void load() {
+	/**
+	 * (Re)load the database and update the soft state once completed. 
+	 */
+	private void load() {
 		
 		long startTime = System.currentTimeMillis();
+		logger.info("Starting reload of soft state...");
 		
-		clearSoftState();
+		// the next version of the soft state
+		final Map<KeyRegistrationRecord, Set<KeyRegistrationRecord>> topology = new ConcurrentHashMap<KeyRegistrationRecord, Set<KeyRegistrationRecord>>();
+		final Map<String, KeyRegistrationRecord> key_to_record = new ConcurrentHashMap<String, KeyRegistrationRecord>();
+		final Map<Long, KeyRegistrationRecord> id_to_record = new ConcurrentHashMap<Long, KeyRegistrationRecord>();
+		final List<KeyRegistrationRecord> peers = Collections.synchronizedList(new ArrayList<KeyRegistrationRecord>());
+		final Map<String, Integer> ips_to_key_counts = Collections.synchronizedMap(new HashMap<String, Integer>());
 		
 		(new SQLStatementProcessor<Void>("SELECT public_key, nick, created_by_account, registration_ip, registration_timestamp, last_refresh_timestamp, db_id FROM registered_keys ORDER BY key_hash ASC") {
 			Void process(PreparedStatement s) throws SQLException {
+				
 				ResultSet rs = s.executeQuery();
+				
 				while( rs.next() ) {
 					KeyRegistrationRecord fr = new KeyRegistrationRecord( rs.getString("public_key"), rs.getString("nick"), new Date(rs.getTimestamp("registration_timestamp").getTime()), 
 							new Date(rs.getTimestamp("last_refresh_timestamp").getTime()), rs.getString("registration_ip"), 
@@ -445,12 +467,14 @@ public class CommunityDAO {
 					id_to_record.put(fr.getID(), fr);
 					topology.put(fr, Collections.synchronizedSet(new HashSet<KeyRegistrationRecord>()));
 				}
+				
 				return null;
 			}
 		}).doit();
 		
 		(new SQLStatementProcessor<Void>("SELECT registration_ip, COUNT(*) FROM registered_keys GROUP BY registration_ip") {
 			Void process(PreparedStatement s) throws SQLException {
+				
 				ResultSet rs = s.executeQuery();
 				while( rs.next() ) {
 					String reg_ip = rs.getString(1);
@@ -460,22 +484,23 @@ public class CommunityDAO {
 					
 					logger.finest("ip: " + reg_ip + " registered " + count);
 				}
+				
 				return null;
 			}
 		}).doit();
 		
-		(new SQLStatementProcessor<Void>("SELECT username, registered_keys FROM valid_accounts") {
-			Void process(PreparedStatement s) throws SQLException {
-				ResultSet rs = s.executeQuery();
-				while( rs.next() ) {
-					String reg_username = rs.getString(1);
-					Integer count = rs.getInt(2);
-					
-					logger.finest("user: " + reg_username + " registered " + count);
-				}
-				return null;
-			}
-		}).doit();
+//		(new SQLStatementProcessor<Void>("SELECT username, registered_keys FROM valid_accounts") {
+//			Void process(PreparedStatement s) throws SQLException {
+//				ResultSet rs = s.executeQuery();
+//				while( rs.next() ) {
+//					String reg_username = rs.getString(1);
+//					Integer count = rs.getInt(2);
+//					
+//					logger.finest("user: " + reg_username + " registered " + count);
+//				}
+//				return null;
+//			}
+//		}).doit();
 		
 		(new SQLStatementProcessor<Void>("SELECT * FROM topology") {
 			Void process(PreparedStatement s) throws SQLException {
@@ -493,16 +518,24 @@ public class CommunityDAO {
 						logger.severe("Null soft state key registration record for ID: " + rs.getLong("B_id"));	
 					}
 					
-					createFriendLink(a, b, false);
+					createFriendLink(topology, a, b, false);
 				}
 				return null;
 			}
 		}).doit();
 		
+		synchronized(CommunityDAO.this) {
+			CommunityDAO.this.key_to_record = key_to_record;
+			CommunityDAO.this.id_to_record = id_to_record;
+			CommunityDAO.this.topology = topology;
+			CommunityDAO.this.peers = peers;
+			CommunityDAO.this.ips_to_key_counts = ips_to_key_counts;
+		}
+		
 		logger.info("db sync took: " + (System.currentTimeMillis() - startTime) + " for " + peers.size());
 	}
 	
-	private synchronized void createFriendLink( final KeyRegistrationRecord a, final KeyRegistrationRecord b, boolean writeToDB ) {
+	private synchronized void createFriendLink( final Map<KeyRegistrationRecord, Set<KeyRegistrationRecord>> topology, final KeyRegistrationRecord a, final KeyRegistrationRecord b, boolean writeToDB ) {
 		Set<KeyRegistrationRecord> a_peers = topology.get(a);
 		Set<KeyRegistrationRecord> b_peers = topology.get(b);
 		
@@ -541,13 +574,14 @@ public class CommunityDAO {
 	}
 	
 	public synchronized void drop_tables() {
-		
+
+		Connection c = null;
 		try {
-			getConnection();
-			
+			c = connectionPool.getConnection();
+						
 			clearSoftState();
 
-			Statement stmt = con.createStatement();
+			Statement stmt = c.createStatement();
 			for( String t : TABLES )
 			{
 				try {
@@ -559,19 +593,21 @@ public class CommunityDAO {
 			stmt.close();
 		} catch( Exception e ) {}
 		finally {
-			releaseConnection();
+			try {
+				c.close();
+			} catch( SQLException e ) {}
 		}
 	}
 	
-	public void create_tables() 
+	public synchronized void create_tables() 
 	{
+		Connection c = null;
 		try 
-		{
-			getConnection();
-			
+		{		
 			clearSoftState();
 
-			Statement s = con.createStatement();
+			c = connectionPool.getConnection();
+			Statement s = c.createStatement();
 			
 			s.executeQuery("show tables");
 			
@@ -592,7 +628,7 @@ public class CommunityDAO {
 			 */
 			PreparedStatement stmt = null;
 			for( UserRole role : UserRole.values() ) {
-				stmt = con.prepareStatement("INSERT INTO roles (role) VALUES ('" + role.getTag() + "')");
+				stmt = c.prepareStatement("INSERT INTO roles (role) VALUES ('" + role.getTag() + "')");
 				stmt.executeUpdate();
 				stmt.close();
 			}
@@ -600,7 +636,9 @@ public class CommunityDAO {
 		} catch( SQLException e ) {
 			e.printStackTrace();
 		} finally {
-			releaseConnection();
+			try{
+				c.close();
+			} catch( SQLException e ) {}
 		}
 		
 		try { 
@@ -627,7 +665,7 @@ public class CommunityDAO {
 			}}).doit();
 	}
 
-	private void clearSoftState() {
+	private synchronized void clearSoftState() {
 		peers.clear();
 		key_to_record.clear();
 		id_to_record.clear();
@@ -695,7 +733,7 @@ public class CommunityDAO {
 			 * don't need an extra copy here
 			 */
 			logger.finest("\tAdding candidate: " + candidate.getNickname() + " with " + topology.get(candidate).size());
-			createFriendLink(me, candidate, true);
+			createFriendLink(topology, me, candidate, true);
 		}
 		
 		logger.finer("Returning " + friends.size() + " for " + me.getNickname());
@@ -777,6 +815,13 @@ public class CommunityDAO {
 					}).doit();
 				}
 			});
+			
+			KeyRegistrationRecord rec = key_to_record.get(inBase64Key);
+			if( rec == null ) {
+				logger.warning("Got update refresh time for a key that wasn't in soft state: " + inBase64Key);
+			} else {
+				rec.setLastRefresh(new java.util.Date());
+			}
 		} catch( InterruptedException e ) {
 			e.printStackTrace();
 			logger.warning(e.toString());
@@ -821,27 +866,6 @@ public class CommunityDAO {
 		}
 		
 		return Arrays.asList(out.toArray(new KeyRegistrationRecord[0]));
-	}
-
-	protected synchronized Connection getConnection() {
-		while (conFree == false) {
-			try {
-				wait();
-			} catch (InterruptedException e) {}
-		}
-		conFree = false;
-		notify();
-		return con;
-	}
-
-	protected synchronized void releaseConnection() {
-		while (conFree == true) {
-			try {
-				wait();
-			} catch (InterruptedException e) {}
-		}
-		conFree = true;
-		notify();
 	}
 	
 	public static void main( String[] args ) throws Exception
@@ -910,7 +934,7 @@ public class CommunityDAO {
 					break;
 				else
 				{
-					Connection con = rep.getConnection();
+					Connection con = rep.connectionPool.getConnection();
 					Statement s = con.createStatement();
 					if( line.toLowerCase().startsWith("select") )
 					{
@@ -923,7 +947,8 @@ public class CommunityDAO {
 					else
 						System.out.println( s.execute(line) + "" );
 					s.close();
-					rep.releaseConnection();
+
+					con.close();
 				}
 			}
 			catch( SQLException e )
@@ -940,7 +965,6 @@ public class CommunityDAO {
 			Void process( PreparedStatement s ) throws SQLException {
 				ResultSet rs = s.executeQuery();
 				ResultSetMetaData md = rs.getMetaData();
-				Map<String, Integer> cols = new HashMap<String, Integer>();
 				
 				for( int i=1; i<=md.getColumnCount(); i++ )
 				{
@@ -974,6 +998,7 @@ public class CommunityDAO {
 	 */
 	abstract class SQLStatementProcessor<V> {
 		String mSQL;
+		protected Connection con = null;
 		
 		public SQLStatementProcessor( String sql ) {
 			mSQL = sql;
@@ -982,8 +1007,9 @@ public class CommunityDAO {
 		public V doit() {
 			PreparedStatement stmt = null;
 			V out = null;
+			con = null;
 			try {
-				Connection con = getConnection();
+				con = connectionPool.getConnection();
 				
 				stmt = con.prepareStatement(mSQL);
 				out = process(stmt);
@@ -994,9 +1020,11 @@ public class CommunityDAO {
 			}
 			finally {
 				try {
-					stmt.close();
-				} catch( Exception e ) {}
-				releaseConnection();
+					con.close();
+				} catch( SQLException e ) {
+					e.printStackTrace();
+					logger.warning(e.toString());
+				}
 			}
 			return out;
 		}
@@ -1119,7 +1147,7 @@ public class CommunityDAO {
 		}).doit();
 	}
 	
-	private CommunityAccount accountFromResultSet( ResultSet rs ) throws SQLException {
+	private CommunityAccount accountFromResultSet( Connection con, ResultSet rs ) throws SQLException {
 		
 		long id = rs.getLong("uid");
 		/**
@@ -1158,13 +1186,14 @@ public class CommunityDAO {
 				s.setString(1, username);
 				ResultSet rs = s.executeQuery();
 				if( rs.next() ) {
-					return accountFromResultSet(rs);
+					return accountFromResultSet(con, rs);
 				}
 				return null;
 			}
 		}).doit();
 		
-		if( purported == null ) { 
+		if( purported == null ) {
+			logger.fine("Unknown user: " + username + " / returning null.");
 			return null;
 		}
 		
@@ -1174,8 +1203,11 @@ public class CommunityDAO {
 				return purported;
 			}
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
+		
+		logger.fine("Password did not match for user: " + username);
 		
 		return null;
 	}
@@ -1187,8 +1219,9 @@ public class CommunityDAO {
 		 * are duplicate nicks
 		 */
 		PreparedStatement stmt = null;
+		Connection con = null;
 		try {
-			getConnection();
+			con = connectionPool.getConnection();
 			
 			stmt = con.prepareStatement("INSERT INTO valid_accounts (username, password_hash, max_registrations) VALUES (?, ?, ?)");
 			
@@ -1229,9 +1262,11 @@ public class CommunityDAO {
 		}
 		finally {
 			try {
-				stmt.close();
-			} catch( Exception e ) {}
-			releaseConnection();
+				con.close();
+			} catch( SQLException e ) {
+				e.printStackTrace();
+				logger.warning(e.toString());
+			}
 		}
 	}
 
@@ -1412,7 +1447,7 @@ public class CommunityDAO {
 				List<CommunityAccount> out = new ArrayList<CommunityAccount>();
 				ResultSet rs = s.executeQuery();
 				while( rs.next() ) {
-					out.add(accountFromResultSet(rs));
+					out.add(accountFromResultSet(con, rs));
 				}
 				return out;
 			}
@@ -1425,7 +1460,7 @@ public class CommunityDAO {
 				s.setLong(1, uid);
 				ResultSet rs = s.executeQuery();
 				if( rs.next() ) {
-					return accountFromResultSet(rs);
+					return accountFromResultSet(con, rs);
 				}
 				return null;
 			}
@@ -1448,7 +1483,7 @@ public class CommunityDAO {
 				s.setLong(1, uid);
 				ResultSet rs = s.executeQuery();
 				if( rs.next() ) {
-					return accountFromResultSet(rs);
+					return accountFromResultSet(con, rs);
 				} 
 				return null;
 			}
@@ -1461,7 +1496,7 @@ public class CommunityDAO {
 				s.setString(1, name);
 				ResultSet rs = s.executeQuery();
 				if( rs.next() ) {
-					return accountFromResultSet(rs);
+					return accountFromResultSet(con, rs);
 				} 
 				return null;
 			}
@@ -1726,7 +1761,7 @@ public class CommunityDAO {
 		
 		if( offset > 0 ) { 
 			sb.append( " OFFSET ?" );
-			params.add(new Integer(offset));
+			params.add(Integer.valueOf(offset));
 		}
 		
 		logger.finest("Query string: " + sb.toString());

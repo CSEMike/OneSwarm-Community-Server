@@ -73,6 +73,7 @@ public class IPServletFilter implements Filter {
 		PrintStream out = new PrintStream(resp.getOutputStream());
 		out.println("<html><body><h1>401/IP not authorized</h1></body></html>\r\n\r\n");
 		out.flush();
+		out.close();
 	}
 
 	public void init(FilterConfig config) throws ServletException {}

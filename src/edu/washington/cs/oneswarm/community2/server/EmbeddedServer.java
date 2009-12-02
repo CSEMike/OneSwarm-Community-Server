@@ -53,16 +53,16 @@ import edu.washington.cs.oneswarm.community2.utils.GangliaStat.StatReporter;
 public class EmbeddedServer {
 
 	public enum StartupSetting {
-		MAX_THREADS("max.threads", new Integer(30)),
+		MAX_THREADS("max.threads", Integer.valueOf(30)),
 		
 		GANGLIA_HOST("ganglia.host", null), 
-		GANGLIA_PORT("ganglia.port", new Integer(8649)),
+		GANGLIA_PORT("ganglia.port", Integer.valueOf(8649)),
 		
 		IP_WHITELIST("ip.whitelist", null), 
 		IP_BLACKLIST("ip.blacklist", null),
 		
 		HOST("host", null), 
-		PORT("port", new Integer(8080)),
+		PORT("port", Integer.valueOf(8080)),
 		
 		SSL("ssl", null),
 		KEYSTORE_PASSWORD("keystore.password", null), 
@@ -73,7 +73,7 @@ public class EmbeddedServer {
 		REQUIRE_AUTH_FOR_KEY_REGISTRATION("require.auth.for.key.registration", Boolean.FALSE), 
 		REQUIRE_AUTH_FOR_PUBLISH("require.auth.for.publish", Boolean.TRUE),
 		REQUEST_LOG_DIRECTORY("request.log.directory", null), 
-		REQUEST_LOG_RETAIN_DAYS("request.log.retain.days", new Integer(7)),
+		REQUEST_LOG_RETAIN_DAYS("request.log.retain.days", Integer.valueOf(7)),
 		
 		JDBC_PROPS("jdbc.properties", "/tmp/jdbc.properties");
 
@@ -157,7 +157,7 @@ public class EmbeddedServer {
 
 	Server mServer = null;
 
-	class OurHashRealm extends HashUserRealm {
+	static final class OurHashRealm extends HashUserRealm {
 
 		public OurHashRealm() {
 			super("OneSwarm Community Server");
@@ -174,8 +174,15 @@ public class EmbeddedServer {
 
 		public boolean isUserInRole(Principal p, String role) {
 			if (p instanceof CommunityAccount) {
-				logger.finest("isUserInRole " + p + " / " + role);
-				return ((CommunityAccount) p).getRoles()[0].equals(role);
+				logger.finer("isUserInRole " + p + " / " + role);
+				
+				CommunityAccount cast = (CommunityAccount)p;
+				for( String userRole : cast.getRoles() ) { 
+					if( userRole.equals(role) ) { 
+						return true;
+					}
+				}
+				
 			}
 			return false;
 		}
@@ -301,7 +308,7 @@ public class EmbeddedServer {
 		app.setWar("./war");
 		app.setConfigurationClasses(new String[] { WebInfConfiguration.class.getName(), WebXmlConfiguration.class.getName(), JettyWebXmlConfiguration.class.getName() });
 		app.setParentLoaderPriority(true);
-
+		
 		app.getInitParams().put("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
 		app.getInitParams().put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
 		app.getInitParams().put("org.mortbay.jetty.servlet.Default.cacheControl", "no-store,no-cache,must-revalidate");
@@ -327,13 +334,13 @@ public class EmbeddedServer {
 			connector = new SelectChannelConnector();
 		}
 		connector.setMaxIdleTime(5000);
-		if (inHost == null) {
+		if (inHost != null) {
 			connector.setHost(inHost);
 			logger.info("host: " + inHost);
 		}
 		connector.setPort(inPort);
 		mServer.addConnector(connector);
-
+		
 		Handler[] handlers = null;
 		if (System.getProperty(StartupSetting.REQUEST_LOG_DIRECTORY.getKey()) != null) {
 
@@ -351,7 +358,7 @@ public class EmbeddedServer {
 		}
 
 		mServer.setHandlers(handlers);
-
+		
 		logger.info("port: " + inPort);
 	}
 
@@ -424,12 +431,18 @@ public class EmbeddedServer {
 		jdbc.setProperty("userroletablerolekey", "role_id");
 		jdbc.setProperty("cachetime", "0");
 
+		FileOutputStream outStream = null;
 		try {
-			jdbc.store(new FileOutputStream(System.getProperty("jdbc.properties")), null);
+			outStream = new FileOutputStream(System.getProperty("jdbc.properties"));
+			jdbc.store(outStream, null);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try { 
+				outStream.close();
+			} catch( Exception e ) {}
 		}
 
 	}
@@ -597,7 +610,12 @@ public class EmbeddedServer {
 
 		BufferedReader in = new BufferedReader(new FileReader(path));
 		while (in.ready()) {
-			outList.add(new IPFilter(in.readLine()));
+			String line = in.readLine();
+			if( line != null ) {
+				outList.add(new IPFilter(line));
+			} else { 
+				break;
+			}
 		}
 
 		return outList;

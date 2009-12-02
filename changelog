@@ -1,3 +1,17 @@
+0.7.0pre10:
+- using connection pool for DB access
+- fixed bug preventing binding to specific host
+- improved logging re: authentication
+
+0.7.0pre9:
+- change password in user management for admins
+- "next" button for the swarm details page when moderating 
+- added swarms.per.search.page setting 
+- swarms.per.page now applies to category browsing and the files.jsp splash page 
+- option to discard commenter IP address (keep.comment.ips)
+- option to display commenter IP address when saved (display.comment.ips.moderators) 
+- support for updating previews
+
 0.7.0pre8:
 - support for MOTD and batch account creation
 

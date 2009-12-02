@@ -65,20 +65,21 @@ public class TestRequest {
 			String l = in.readLine();
 			if (l != null) {
 				System.out.println("got: " + l);
-			}
+				
+				if (l.startsWith(CommunityConstants.CHALLENGE)) {
+					String[] toks = l.split("\\s+");
+					if (toks.length != 2) {
+						System.err.println("bad challenge");
+						return;
+					}
 
-			if (l.startsWith(CommunityConstants.CHALLENGE)) {
-				String[] toks = l.split("\\s+");
-				if (toks.length != 2) {
-					System.err.println("bad challenge");
-					return;
+					long challenge = Long.parseLong(toks[1]);
+					System.out.println("got challenge: " + challenge);
+
+					reissueWithResponse(challenge);
 				}
-
-				long challenge = Long.parseLong(toks[1]);
-				System.out.println("got challenge: " + challenge);
-
-				reissueWithResponse(challenge);
-			}
+			} 
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();

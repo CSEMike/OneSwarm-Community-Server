@@ -36,9 +36,9 @@
 <td>Total registered keys:</td><td><%= registeredKeys.length %></td> 
 </tr>
 <tr>
-<td>Total swarms: </td><td><%= dao.getApproximateRowCount("published_swarms") %> (including hidden)</td>
+<td>Total swarms (approx): </td><td><%= dao.getApproximateRowCount("published_swarms") %> (including hidden)</td>
 </tr>
 <tr>
-<td>Total comments: </td><td><%= dao.getApproximateRowCount("comments") %></td>
+<td>Total comments (approx): </td><td><%= dao.getApproximateRowCount("comments") %></td>
 </tr>
 </table>
