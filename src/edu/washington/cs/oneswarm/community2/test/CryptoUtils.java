@@ -11,15 +11,15 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class CryptoUtils {
 	private KeyPairGenerator generator;
-	private Signature signer = null;
-	private MessageDigest digest = null;
+//	private Signature signer = null;
+//	private MessageDigest digest = null;
 	public static final int KEY_SIZE_BITS = 1024;
 	
 	public CryptoUtils() {
 		try {
 			generator = KeyPairGenerator.getInstance("RSA");
-			signer = Signature.getInstance("SHA1withRSA");
-			digest = MessageDigest.getInstance("SHA-1");
+//			signer = Signature.getInstance("SHA1withRSA");
+//			digest = MessageDigest.getInstance("SHA-1");
 		} catch (NoSuchAlgorithmException e1) {
 			e1.printStackTrace();
 		} 

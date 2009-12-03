@@ -94,6 +94,10 @@ public class CommunityAccount implements Principal {
 	}
 	
 	public String toString() { 
-		return "Name: " + getName() + " Role: " + getRoles();
+		StringBuilder sb = new StringBuilder();
+		for( String r : getRoles() ) {
+			sb.append(r + " ");
+		}
+		return "Name: " + getName() + " Roles: " + sb.toString() + " ID: " + getID();
 	}
 }

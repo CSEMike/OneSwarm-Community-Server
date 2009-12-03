@@ -31,6 +31,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.gudy.azureus2.core3.util.BDecoder;
@@ -116,6 +117,15 @@ public final class CommunityDAO {
 		public static UserRole roleForString( String inString ) { 
 			for( UserRole r : values() ) { 
 				if( r.getTag().equals(inString) ) { 
+					return r;
+				}
+			}
+			return null;
+		}
+		
+		public static UserRole roleForID( int inID ) {
+			for( UserRole r : values() ) {
+				if( r.getID() == inID ) {
 					return r;
 				}
 			}
@@ -1173,14 +1183,21 @@ public final class CommunityDAO {
 		for( int i=0; i<converted.length; i++ ) { 
 			// -1 corrects for SQL 1-based indexing
 			converted[i] = UserRole.values()[roles.get(i).intValue()-1].getTag();
+//			converted[i] = UserRole.roleForID(roles.get(i).intValue()).getTag();
 		}
 		
-		return new CommunityAccount(rs.getString("username"), 
+		CommunityAccount out = new CommunityAccount(rs.getString("username"), 
 					rs.getString("password_hash"),
 					converted, 
 					rs.getInt("registered_keys"), 
 					rs.getInt("max_registrations"), 
 					rs.getLong("uid"));
+		
+		if( logger.isLoggable(Level.FINEST) ) {
+			logger.finest("Converted account: " + out); 
+		}
+		
+		return out;
 	}
 
 	public Principal authenticate(final String username, final String credentials) {
@@ -1199,13 +1216,16 @@ public final class CommunityDAO {
 		}).doit();
 		
 		if( purported == null ) {
-			logger.fine("Unknown user: " + username + " / returning null.");
+			logger.warning("Unknown user: " + username + " / returning null.");
 			return null;
 		}
 		
 		try {
 			if( Arrays.equals(getPasswordHash(credentials.toString()), 
 					TypeUtil.fromHexString(purported.getHash().substring("MD5:".length()))) ) {
+				
+				logger.finest("Passwords match for: " + username);
+				
 				return purported;
 			}
 		} catch (IOException e) {

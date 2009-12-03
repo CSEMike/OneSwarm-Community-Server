@@ -183,6 +183,10 @@ public class EmbeddedServer {
 					}
 				}
 				
+			} else {
+				logger.warning("isUserInRole without a community account. " + 
+						p != null ? (p + " / " + p.getClass().getName()) :
+						"null" );
 			}
 			return false;
 		}
@@ -194,7 +198,7 @@ public class EmbeddedServer {
 		CommunityDAO.get();
 
 		mServer = new Server();
-
+		
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		threadPool.setMinThreads(2);
 		threadPool.setMaxThreads(inMaxThreads);
@@ -243,7 +247,7 @@ public class EmbeddedServer {
 		registrationContext.setAllowNullPathInfo(true);
 		
 		List<ConstraintMapping> constraintMappings = new ArrayList<ConstraintMapping>();
-		ConstraintMapping cm = new ConstraintMapping();
+		ConstraintMapping cm = null;
 
 		registrationContext.setSecurityHandler(secHandler);
 		registrationContext.addServlet(new ServletHolder(new KeyRegistrationServlet()), "/");
@@ -306,7 +310,7 @@ public class EmbeddedServer {
 		WebAppContext app = new WebAppContext();
 		app.setContextPath("/");
 		app.setWar("./war");
-		app.setConfigurationClasses(new String[] { WebInfConfiguration.class.getName(), WebXmlConfiguration.class.getName(), JettyWebXmlConfiguration.class.getName() });
+		app.setConfigurationClasses(new String[] { JettyWebXmlConfiguration.class.getName(), WebInfConfiguration.class.getName(), WebXmlConfiguration.class.getName() });
 		app.setParentLoaderPriority(true);
 		
 		app.getInitParams().put("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
@@ -358,7 +362,13 @@ public class EmbeddedServer {
 		}
 
 		mServer.setHandlers(handlers);
-		
+//		if( System.getProperty("mxbeans") != null ) {
+//			System.clearProperty("mxbeans");
+//			MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+//		    MBeanContainer mBeanContainer = new MBeanContainer(mBeanServer);
+//		    mServer.getContainer().addEventListener(mBeanContainer);
+//		    mBeanContainer.start();
+//		}
 		logger.info("port: " + inPort);
 	}
 
@@ -459,7 +469,7 @@ public class EmbeddedServer {
 
 		set_default_settings();
 		load_config(args.length == 0 ? "community.conf" : args[0]);
-
+		
 		String host = System.getProperty(StartupSetting.HOST.getKey());
 		int port = Integer.parseInt(System.getProperty(StartupSetting.PORT.getKey()));
 		int maxThreads = Integer.parseInt(System.getProperty(StartupSetting.MAX_THREADS.getKey()));

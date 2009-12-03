@@ -244,6 +244,8 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.warning(e.toString());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return;
 		} 
 
 		try {

@@ -47,11 +47,11 @@ public class TestEmbeddedServer {
 		this.host = host;
 		this.port = port;
 		
-		this.community_url = "http://" + host + ":" + port + "/community";
+		this.community_url = host + ":" + port + "/community";
 		
 		getKeys();
 		
-		threadPool = Executors.newFixedThreadPool(5);
+		threadPool = Executors.newFixedThreadPool(50);
 	}
 	
 	private void getKeys() {
@@ -63,7 +63,7 @@ public class TestEmbeddedServer {
 			
 			CryptoUtils c = new CryptoUtils();
 			generatedKeys = new LinkedList<KeyPair>();
-			for( int i=0; i<10; i++ ) {
+			for( int i=0; i<10000; i++ ) {
 				if( (i%100) == 0 ) {
 					System.out.println("done " + i);
 				}
@@ -83,7 +83,7 @@ public class TestEmbeddedServer {
 	public void doit() {
 		
 //		mixed_bench();
-		try_unicode();
+//		try_unicode();
 		
 	}
 	
@@ -96,6 +96,19 @@ public class TestEmbeddedServer {
 			Thread.sleep(5000);
 		} catch( Exception e ) {}
 		
+	}
+	
+	private void register_all() {
+		for( KeyPair p : generatedKeys ) {
+			threadPool.submit(new RegistrationRequest(p));
+		}
+		
+		while( registered.size() < generatedKeys.size() ) {
+			try {
+				Thread.sleep(5*1000);
+			} catch( Exception e ) {}
+			System.out.println("registered: " + registered.size());
+		}
 	}
 	
 	final List<KeyPair> registered = Collections.synchronizedList(new ArrayList<KeyPair>());
@@ -376,11 +389,14 @@ public class TestEmbeddedServer {
 	
 	public static final void main( String [] args ) throws Exception {
 
+		TestEmbeddedServer test = null;
 		if( args.length == 0 ) {
-			(new TestEmbeddedServer("127.0.0.1", 8081)).doit();
+			test = new TestEmbeddedServer("https://ultramagnetic.dyn.cs.washington.edu", 8081);
 		} else {
 			(new TestEmbeddedServer(args[0], Integer.parseInt(args[1]))).doit();			
 		}
+		
+		test.register_all();
 		
 	}
 	
