@@ -63,8 +63,6 @@ import edu.washington.cs.oneswarm.community2.utils.MutableLong;
  * Instead of introducing a lot of locks and trying to make everything consistent, 
  * we're just going to accept that state may be inconsistent at times and fail gracefully. 
  * Just returning nothing to users is okay -- a missed update isn't the end of the world. 
- * 
- * Aside from that, we're at least safe, synchronizing access to the DB connection
  */
 
 public final class CommunityDAO {
@@ -73,13 +71,8 @@ public final class CommunityDAO {
 	
 	private static Logger logger = Logger.getLogger(CommunityDAO.class.getName());
 
-//	Connection con;
 	BoneCP connectionPool = null;
 	
-//	private boolean conFree = true;
-	
-	//private int maxRegistrationsPerIP = 5;
-//	private int maxFriendsToReturn = 26;
 	
 	private List<KeyRegistrationRecord> peers = Collections.synchronizedList(new ArrayList<KeyRegistrationRecord>());
 	private Map<String, KeyRegistrationRecord> key_to_record = new ConcurrentHashMap<String, KeyRegistrationRecord>();
@@ -87,9 +80,7 @@ public final class CommunityDAO {
 	private Map<KeyRegistrationRecord, Set<KeyRegistrationRecord>> topology = new ConcurrentHashMap<KeyRegistrationRecord, Set<KeyRegistrationRecord>>();
 	private Map<String, Integer> ips_to_key_counts = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
-	//private long userTimeout = 1 * 24 * 60 * 60 * 1000; // 1 day
-	private long userTimeout = System.currentTimeMillis();
-//	private long userTimeout = 60 * 1000; // 1 minute
+	private long userTimeout;
 	
 	private String DRIVER = "com.mysql.jdbc.Driver";
 
@@ -687,7 +678,7 @@ public final class CommunityDAO {
 		return topology.get(inFriend);
 	}
 
-	public synchronized List<KeyRegistrationRecord> getRandomPeers( final String inBase64Key, final int inDesired, final int inMax, boolean updateRefreshTime ) {
+	public List<KeyRegistrationRecord> getRandomPeers( final String inBase64Key, final int inDesired, final int inMax, boolean updateRefreshTime ) {
 		
 		if( isRegistered(inBase64Key) == false ) {
 			return null;
@@ -878,8 +869,21 @@ public final class CommunityDAO {
 		return Arrays.asList(out.toArray(new KeyRegistrationRecord[0]));
 	}
 	
+	// for debugging
+	private void bench() {
+		String k = key_to_record.keySet().toArray(new String[0])[0];
+		long start = System.currentTimeMillis();
+		for( int i=0; i<3000; i++ ) {
+			isRegistered(k);
+//			key_to_record.containsKey(k);
+		}
+		System.out.println("took: " + (System.currentTimeMillis()-start));
+	}
+	
 	public static void main( String[] args ) throws Exception
 	{
+		EmbeddedServer.load_config("community.conf");
+		
 		System.setProperty("derby.ui.codeset", "UTF8");
 		
 		CommunityDAO rep = CommunityDAO.get();
@@ -911,7 +915,11 @@ public final class CommunityDAO {
 				{
 					rep.create_tables();
 				}
-				else if( line.startsWith("drop") ) {
+				else if( line.equals("bench") ) {
+					
+					rep.bench();
+					
+				} else if( line.startsWith("drop") ) {
 					rep.drop_tables();
 				}
 				else if( line.startsWith("show") )
@@ -1155,12 +1163,15 @@ public final class CommunityDAO {
 	}
 	
 	public boolean isRegistered(final String key) {
-		return (new SQLStatementProcessor<Boolean>("SELECT db_id FROM registered_keys WHERE public_key = ?") {
-			Boolean process( PreparedStatement s ) throws SQLException {
-				s.setString(1, key);
-				return s.executeQuery().next();
-			}
-		}).doit();
+		
+		return key_to_record.containsKey(key);
+		
+//		return (new SQLStatementProcessor<Boolean>("SELECT db_id FROM registered_keys WHERE public_key = ?") {
+//			Boolean process( PreparedStatement s ) throws SQLException {
+//				s.setString(1, key);
+//				return s.executeQuery().next();
+//			}
+//		}).doit();
 	}
 	
 	private CommunityAccount accountFromResultSet( Connection con, ResultSet rs ) throws SQLException {

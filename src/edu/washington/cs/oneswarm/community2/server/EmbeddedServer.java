@@ -14,10 +14,12 @@ import java.security.Principal;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -128,6 +130,8 @@ public class EmbeddedServer {
 		
 		INCLUDE_USERNAME_WITH_NICKNAME("include.username.with.nickname", "When returning friends, include both nickname and username.", Boolean.FALSE),
 		ALLOW_USER_PUBLISHING("allow.user.publishing", "Allow users to publish. (If false, only moderators can publish.)", Boolean.TRUE), 
+		
+		ALLOW_FLOODING("allow.flooding", "Allow very rapid requests rates. (Otherwise, request floods are dropped.)", Boolean.FALSE), 
 		
 		;
 
@@ -333,11 +337,53 @@ public class EmbeddedServer {
 			sslconnector.setKeyPassword(System.getProperty("jetty.ssl.keypassword"));
 			sslconnector.setNeedClientAuth(false);
 			sslconnector.setWantClientAuth(false);
-
+			
+			sslconnector.setAcceptors(1);
+			sslconnector.setAcceptQueueSize(100);
+			
+			if( logger.isLoggable(Level.FINE) ) {
+				(new Thread("ssl status reporter") {
+					public void run() {
+						try {
+							
+							logger.fine(new Formatter().format("acceptors: %d acceptQueueSize: %d handshakeTimeout: %d maxIdleTime: %d\n", 
+									sslconnector.getAcceptors(), 
+									sslconnector.getAcceptQueueSize(), 
+									sslconnector.getHandshakeTimeout(), 
+									sslconnector.getMaxIdleTime()).toString());
+							
+							sslconnector.setStatsOn(true);
+							long lastReset = System.currentTimeMillis();
+							while( true ) { 
+								
+								String str = (new Formatter()).format(
+										"connectionsOpen: %d 5-min_durationAvg: %d\n", 
+										sslconnector.getConnectionsOpen(), 
+										sslconnector.getConnectionsDurationAve()
+										).toString();
+								
+								logger.fine(str);
+								
+								Thread.sleep(5000);
+								
+								if( lastReset + 5*60*1000 < System.currentTimeMillis() ) {
+									sslconnector.statsReset();
+								}
+							}
+						} catch( Exception e ) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+			}
+			
 		} else {
 			connector = new SelectChannelConnector();
 		}
-		connector.setMaxIdleTime(5000);
+		
+		connector.setMaxIdleTime(3000);
+		connector.setLowResourceMaxIdleTime(1000);
+		
 		if (inHost != null) {
 			connector.setHost(inHost);
 			logger.info("host: " + inHost);
@@ -406,7 +452,7 @@ public class EmbeddedServer {
 		}
 	}
 
-	private static final void load_config(String path) {
+	public static final void load_config(String path) {
 		Properties config = new Properties();
 		FileInputStream fis = null;
 		try {
@@ -613,8 +659,8 @@ public class EmbeddedServer {
 			@Override
 			public double getValue() {
 				Runtime runtime = Runtime.getRuntime();
-				System.gc();
-				System.gc();
+//				System.gc();
+//				System.gc();
 				long mem_used = runtime.totalMemory() - runtime.freeMemory();
 				logger.finest("Stats collector: mem used=" + mem_used);
 				return mem_used;

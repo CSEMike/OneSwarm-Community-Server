@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -292,9 +293,9 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 			responseOut.write(sw.toString().getBytes("UTF8"));
 			responseOut.flush();
 
-			System.out.println(sw.toString());
+			logger.finest(sw.toString());
 
-			logger.finest("XML write done. finished " + request.getRemoteAddr());
+			logger.finer("XML write done. finished " + request.getRemoteAddr());
 
 		} catch (IOException e) {
 			logger.warning(e.toString());
@@ -331,7 +332,8 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		/**
 		 * Check for flooding, except from localhost (used for stress-testing)
 		 */
-		if( request.getRemoteAddr().equals("127.0.0.1") == false ) {
+		if( request.getRemoteAddr().equals("127.0.0.1") == false && 
+			System.getProperty("allow.flooding").equals(Boolean.FALSE.toString()) ) {
 			if (recentPosts.containsKey(request.getRemoteAddr())) {
 				if (recentPosts.get(request.getRemoteAddr()) + MIN_REGISTRATION_INTERVAL_MS > System.currentTimeMillis()) {
 					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
