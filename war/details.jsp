@@ -125,6 +125,7 @@
 		<% } %>
 		</div>
 <%	} else if( swarm.isRemoved() ) { 
+		System.err.println("[WARNING]: Got details request for removed swarm: " + swarm);
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return;
 } %>

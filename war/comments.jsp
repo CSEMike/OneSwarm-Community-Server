@@ -29,6 +29,7 @@
 					keepIP ? request.getRemoteAddr() : "0.0.0.0" );
 			
 		} catch( IOException e ) { 
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -60,6 +61,7 @@
 	PublishedSwarm swarm = dao.getSwarm(swarmID);
 	
 	if( dao.hasPermissions(user, swarm) == false ) { 
+		System.err.println("[WARNING]: Comment attempt from user without permissions: " + user);
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return;
 	}

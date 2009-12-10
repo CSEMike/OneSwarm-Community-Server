@@ -36,6 +36,7 @@ public class DownloadServlet extends javax.servlet.http.HttpServlet {
 			byte [] b = CommunityDAO.get().getSwarmBytes(id);
 			
 			if( b == null ) { 
+				logger.warning("Problem during swarm download: null swarm bytes");
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -46,6 +47,7 @@ public class DownloadServlet extends javax.servlet.http.HttpServlet {
 			response.getOutputStream().write(b);
 			
 		} catch( Exception e ) {
+			logger.warning("Problem during swarm download: " + e.toString());
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			e.printStackTrace();
 		}

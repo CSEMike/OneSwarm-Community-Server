@@ -30,6 +30,7 @@ public class PreviewImageServlet extends javax.servlet.http.HttpServlet {
 			}
 			
 			if( swarmDetails == null ) { 
+				logger.warning("Swarm details are null for id: " + id);
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -38,9 +39,11 @@ public class PreviewImageServlet extends javax.servlet.http.HttpServlet {
 			response.getOutputStream().write(swarmDetails.getPreviewPNG());
 			
 		} catch( NumberFormatException e ) {
+			logger.warning("Problem during preview generation: " + e.toString());
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (IOException e) {
+			logger.warning("Problem during preview generation: " + e.toString());
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		} 

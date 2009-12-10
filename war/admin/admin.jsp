@@ -89,6 +89,7 @@ function reset_password( uid ) {
 			long uid = Long.parseLong(request.getParameter("uid"));
 			dao.setMaxRegistrationsForUID(neu, uid);
 		} catch( NumberFormatException e ) {
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}

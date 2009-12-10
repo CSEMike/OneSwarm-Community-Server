@@ -41,6 +41,7 @@ if( request.getMethod().equals("POST") ) {
 	
 	String accounts = request.getParameter("accounts");
 	if( accounts == null ) { 
+		System.err.println("[WARNING]: Null accounts parameter in batch account creation request.");
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return;
 	}

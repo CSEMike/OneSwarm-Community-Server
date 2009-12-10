@@ -289,7 +289,7 @@ public final class CommunityDAO {
 		"" +
 		"	ip	VARCHAR(16) NOT NULL, " +
 		"" +
-		"	body TEXT NOT NULL, " +
+		"	body TEXT NOT NULL CHARSET utf8, " +
 		"" + 
 		"	removed BOOLEAN DEFAULT FALSE, " + 
 		"" +

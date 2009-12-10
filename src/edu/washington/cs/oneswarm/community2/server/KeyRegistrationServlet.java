@@ -96,7 +96,7 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		 */
 		if (CommunityDAO.get().isRegistered(request.getParameter(CommunityConstants.BASE64_PUBLIC_KEY)) == false) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			logger.finer("Get request and we don't know about the key " + request.getRemoteAddr());
+			logger.warning("Get request and we don't know about the key " + request.getRemoteAddr());
 			return;
 		}
 
@@ -335,9 +335,10 @@ public class KeyRegistrationServlet extends javax.servlet.http.HttpServlet {
 		if( request.getRemoteAddr().equals("127.0.0.1") == false && 
 			System.getProperty("allow.flooding").equals(Boolean.FALSE.toString()) ) {
 			if (recentPosts.containsKey(request.getRemoteAddr())) {
-				if (recentPosts.get(request.getRemoteAddr()) + MIN_REGISTRATION_INTERVAL_MS > System.currentTimeMillis()) {
+				Long time = recentPosts.get(request.getRemoteAddr());
+				if (time + MIN_REGISTRATION_INTERVAL_MS > System.currentTimeMillis()) {
 					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-					logger.warning("Flooding from: " + request.getRemoteAddr());
+					logger.warning("Flooding from: " + request.getRemoteAddr() + " (last request: " + (new java.util.Date(time)).toString() + ", now: " + (new java.util.Date()) + ")");
 					try {
 						response.getOutputStream().write(CommunityConstants.REGISTRATION_RATE_LIMITED.getBytes());
 						response.getOutputStream().flush();

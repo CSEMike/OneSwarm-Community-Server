@@ -24,7 +24,8 @@
 		isAdmin = user.isAdmin();
 	}
 	
-	if( user == null ) { 
+	if( user == null ) {
+		System.err.println("[WARNING]: Got request to change password without a principal.");
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		return;
 	}

@@ -171,6 +171,9 @@ public class EmbeddedServer {
 
 			if (credentials instanceof String) {
 				Principal p = CommunityDAO.get().authenticate(username, (String) credentials);
+				if( logger.isLoggable(Level.FINER) ) {
+					logger.finer("OurHashRealm authenticate(), got principal: " + p);
+				}
 				return p;
 			}
 			return null;
@@ -341,41 +344,10 @@ public class EmbeddedServer {
 			sslconnector.setAcceptors(1);
 			sslconnector.setAcceptQueueSize(100);
 			
-			if( logger.isLoggable(Level.FINE) ) {
-				(new Thread("ssl status reporter") {
-					public void run() {
-						try {
-							
-							logger.fine(new Formatter().format("acceptors: %d acceptQueueSize: %d handshakeTimeout: %d maxIdleTime: %d\n", 
-									sslconnector.getAcceptors(), 
-									sslconnector.getAcceptQueueSize(), 
-									sslconnector.getHandshakeTimeout(), 
-									sslconnector.getMaxIdleTime()).toString());
-							
-							sslconnector.setStatsOn(true);
-							long lastReset = System.currentTimeMillis();
-							while( true ) { 
-								
-								String str = (new Formatter()).format(
-										"connectionsOpen: %d 5-min_durationAvg: %d\n", 
-										sslconnector.getConnectionsOpen(), 
-										sslconnector.getConnectionsDurationAve()
-										).toString();
-								
-								logger.fine(str);
-								
-								Thread.sleep(5000);
-								
-								if( lastReset + 5*60*1000 < System.currentTimeMillis() ) {
-									sslconnector.statsReset();
-								}
-							}
-						} catch( Exception e ) {
-							e.printStackTrace();
-						}
-					}
-				}).start();
-			}
+			logger.fine(new Formatter().format("acceptors: %d acceptQueueSize: %d handshakeTimeout: %d\n", 
+					sslconnector.getAcceptors(), 
+					sslconnector.getAcceptQueueSize(), 
+					sslconnector.getHandshakeTimeout()).toString());
 			
 		} else {
 			connector = new SelectChannelConnector();
@@ -602,11 +574,14 @@ public class EmbeddedServer {
 			String ourUrl = "http://" + (host == null ? "127.0.0.1" : host) + ((port != 80) ? (":" + port) : "") ;
 			CommunityDAO.get().setURL(ourUrl);
 		}
-		if (gangliaHost != null) {
-			startStatCollector(gangliaHost, gangliaPort);
-		}
-		(new EmbeddedServer(host, port, maxThreads, keystorePath, whitelist, blacklist)).start();
+		
+		EmbeddedServer embeddedServer = new EmbeddedServer(host, port, maxThreads, keystorePath, whitelist, blacklist);
+		embeddedServer.start();
 
+		if (gangliaHost != null) {
+			startStatCollector(gangliaHost, gangliaPort, embeddedServer.getConnector());
+		}
+		
 		if( System.getProperty(StartupSetting.UNENCRYPTED_PORT.getKey()) != null && 
 				keystorePath != null ) {
 			int alt_port = Integer.parseInt(System.getProperty(StartupSetting.UNENCRYPTED_PORT.getKey()));
@@ -624,7 +599,14 @@ public class EmbeddedServer {
 		
 	}
 
-	private static void startStatCollector(String host, int port) {
+	private Connector getConnector() {
+		return mServer.getConnectors()[0];
+	}
+
+	private static void startStatCollector(String host, int port, final Connector connector) {
+		
+		connector.setStatsOn(true);
+		
 		logger.fine("Starting stats collector: " + host + ":" + port);
 		GangliaStat statCollector = new GangliaStat(host, port, 30, 60);
 		statCollector.addMetric(new StatReporter("os_cs_keys_registered", "keys") {
@@ -633,6 +615,29 @@ public class EmbeddedServer {
 				int length = CommunityDAO.get().getRegisteredKeys().length;
 				logger.finest("Stats collector: reg users=" + length);
 				return length;
+			}
+		});
+		
+		statCollector.addMetric(new StatReporter("os_connections_opened", "Connections open") {
+			public double getValue() {
+				return connector.getConnectionsOpen();
+			}});
+		
+		statCollector.addMetric(new StatReporter("os_connections", "Connections") {
+			public double getValue() {
+				return connector.getConnections();
+			}});
+		
+		statCollector.addMetric(new StatReporter("os_requests", "Requests") {
+			public double getValue() {
+				return connector.getRequests();
+			}});
+		
+		statCollector.addMetric(new StatReporter("os_connection_duration", "ms") {
+			public double getValue() {
+				double v = connector.getConnectionsDurationAve();
+				connector.statsReset();
+				return v;
 			}
 		});
 

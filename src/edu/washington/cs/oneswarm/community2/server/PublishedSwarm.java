@@ -65,4 +65,7 @@ public class PublishedSwarm {
 	public String getInfohash() { 
 		return infohash;
 	}
+	public String toString() {
+		return getName() + " (ID: " + getSwarmID() + ")";
+	}
 }
