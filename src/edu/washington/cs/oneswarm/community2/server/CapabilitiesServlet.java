@@ -1,7 +1,12 @@
 package edu.washington.cs.oneswarm.community2.server;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +19,47 @@ public class CapabilitiesServlet extends javax.servlet.http.HttpServlet {
 	
 	private static Logger logger = Logger.getLogger(CapabilitiesServlet.class.getName());
 	
+	String [] filterKeywords = null;
+	
 	public CapabilitiesServlet() {
 		logger.info("Capabilities servlet started.");
+		
+		String filterFileName = System.getProperty(EmbeddedServer.StartupSetting.SEARCH_FILTER_FILE.getKey());
+		if( filterFileName == null ) {
+			filterKeywords = null;
+		} else {
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(filterFileName);
+				BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+				List<String> scratch = new ArrayList<String>();
+				
+				while( true ) { 
+					String line = in.readLine();
+					if( line == null ) {
+						break;
+					}
+					line = line.trim();
+					
+					String [] toks = line.split("\\s+");
+					for( String s : toks ) {
+						scratch.add(s);
+						logger.fine("Filter keyword: " + s);
+					}
+				}
+				filterKeywords = scratch.toArray(new String[0]);
+				
+			} catch( IOException e ) {
+				logger.warning("Error reading filter keywords: " + e.toString());
+				e.printStackTrace();
+			} finally {
+				if( fis != null ) {
+					try {
+						fis.close();
+					} catch( IOException e ) {}
+				}
+			}
+		}
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -38,6 +82,14 @@ public class CapabilitiesServlet extends javax.servlet.http.HttpServlet {
 			if( System.getProperty(EmbeddedServer.StartupSetting.UNENCRYPTED_PORT.getKey()) != null ) {
 				int alt_port = Integer.parseInt(System.getProperty(StartupSetting.UNENCRYPTED_PORT.getKey()));
 				out.println("<nossl port=\"" + alt_port + "\"/>");
+			}
+			
+			if( filterKeywords != null ) {
+				out.println("<searchfilter>");
+				for( String keyword : filterKeywords ) {
+					out.println("<keyword>" + keyword + "</keyword>");
+				}
+				out.println("</searchfilter>");
 			}
 			
 			out.println("</capabilities>");

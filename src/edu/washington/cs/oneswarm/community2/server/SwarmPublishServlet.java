@@ -36,7 +36,7 @@ public class SwarmPublishServlet extends javax.servlet.http.HttpServlet {
 		logger.finest("got post: " + request.toString());
 		
 		if( request.getUserPrincipal() == null && 
-			System.getProperty(EmbeddedServer.StartupSetting.REQUIRE_AUTH_FOR_PUBLISH.getKey()) != null ) { 
+			System.getProperty(EmbeddedServer.StartupSetting.REQUIRE_AUTH_FOR_PUBLISH.getKey()).equals(Boolean.TRUE.toString()) ) { 
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}

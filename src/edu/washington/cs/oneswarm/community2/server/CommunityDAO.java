@@ -73,7 +73,6 @@ public final class CommunityDAO {
 
 	BoneCP connectionPool = null;
 	
-	
 	private List<KeyRegistrationRecord> peers = Collections.synchronizedList(new ArrayList<KeyRegistrationRecord>());
 	private Map<String, KeyRegistrationRecord> key_to_record = new ConcurrentHashMap<String, KeyRegistrationRecord>();
 	private Map<Long, KeyRegistrationRecord> id_to_record = new ConcurrentHashMap<Long, KeyRegistrationRecord>();
@@ -883,8 +882,6 @@ public final class CommunityDAO {
 	public static void main( String[] args ) throws Exception
 	{
 		EmbeddedServer.load_config("community.conf");
-		
-		System.setProperty("derby.ui.codeset", "UTF8");
 		
 		CommunityDAO rep = CommunityDAO.get();
 		

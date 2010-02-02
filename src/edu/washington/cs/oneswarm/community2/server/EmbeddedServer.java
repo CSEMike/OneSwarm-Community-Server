@@ -1,5 +1,6 @@
 package edu.washington.cs.oneswarm.community2.server;
 
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -76,6 +77,8 @@ public class EmbeddedServer {
 		REQUIRE_AUTH_FOR_PUBLISH("require.auth.for.publish", Boolean.TRUE),
 		REQUEST_LOG_DIRECTORY("request.log.directory", null), 
 		REQUEST_LOG_RETAIN_DAYS("request.log.retain.days", Integer.valueOf(7)),
+		
+		SEARCH_FILTER_FILE("search.filter.file", null), 
 		
 		JDBC_PROPS("jdbc.properties", "/tmp/jdbc.properties");
 
@@ -175,6 +178,12 @@ public class EmbeddedServer {
 					logger.finer("OurHashRealm authenticate(), got principal: " + p);
 				}
 				return p;
+			} else {
+				if( credentials != null ) {
+					logger.warning("Got authenticate call, but credentials is not a string. Instead; " + credentials.getClass().getCanonicalName() + " (user: " + username + ")" );
+				} else {
+					logger.warning("Authenticate called with null credentials for user: " + username);
+				}
 			}
 			return null;
 		}
@@ -184,8 +193,20 @@ public class EmbeddedServer {
 				logger.finer("isUserInRole " + p + " / " + role);
 				
 				CommunityAccount cast = (CommunityAccount)p;
+				
+				if( cast.isAdmin() && role.equals("bozo") == false ) {
+					logger.finest("Admin " + p + " is also " + role + ", returning true.");
+					return true;
+				}
+				
+				if( cast.canModerate() && role.equals("user") ) {
+					logger.finest("Moderator " + p + " is also user, returning true.");
+					return true;
+				}
+				
 				for( String userRole : cast.getRoles() ) { 
-					if( userRole.equals(role) ) { 
+					if( userRole.equals(role) ) {
+						logger.finest("User " + p + " in role " + role + ", returning true."); 
 						return true;
 					}
 				}
@@ -195,6 +216,7 @@ public class EmbeddedServer {
 						p != null ? (p + " / " + p.getClass().getName()) :
 						"null" );
 			}
+			logger.finest("User " + p + " not in role, returning false."); 
 			return false;
 		}
 
