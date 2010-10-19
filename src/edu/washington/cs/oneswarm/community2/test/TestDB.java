@@ -27,7 +27,7 @@ public class TestDB {
 		dao.drop_tables();
 		dao.create_tables();
 		
-		dao.registerUser("abc123", "Žstwtf?", "1.2.3.4", "admin");
+		dao.registerUser("abc123", "\u00a9stwtf?", "1.2.3.4", "admin");
 		
 ////		
 //		Runnable r = new Runnable() {
