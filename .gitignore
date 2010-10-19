@@ -1,2 +1,16 @@
 .DS_Store
 *.class
+.classpath
+.project
+.settings/
+*.gz
+*.log.*
+make-dist.sh
+ssl_test/
+*~
+*.bash
+*.properties
+logo_scratch/
+scratch_keys
+filter.txt
+community.conf
