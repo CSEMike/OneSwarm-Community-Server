@@ -3,7 +3,7 @@
     <property environment="env"/>
     
 	<description>
-	An ant build script for the OneSwarm Community Server
+		An ant build script for the OneSwarm Community Server
 	</description>
 	
 	<property name="debuglevel" value="source,lines,vars"/>
@@ -32,6 +32,7 @@
         <pathelement location="war/WEB-INF/lib/el-api.jar"/>
         <pathelement location="war/WEB-INF/lib/jasper-el.jar"/>
         <pathelement location="war/WEB-INF/lib/jasper-jdt.jar"/>
+        <pathelement location="war/WEB-INF/lib/bonecp-0.5.3.1-rc1.jar"/>
     </path>
 	
     <target name="init">
@@ -51,7 +52,7 @@
     <target depends="clean" name="cleanall"/>
 	
 	<target depends="init" name="build-project">
-        <javac debug="true" debuglevel="${debuglevel}" destdir="war/WEB-INF/classes" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="war/WEB-INF/classes" source="${source}" target="${target}" includeantruntime="false">
             <src path="src"/>
             <classpath refid="oneswarm_community_server2.classpath"/>
         </javac>
