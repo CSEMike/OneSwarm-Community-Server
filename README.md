@@ -6,7 +6,7 @@ This is the reference implementation of the OneSwarm Community Server, which sup
 
 Dependencies:
 * Sun's Java 6 runtime -- http://java.sun.com/javase/downloads/index.jsp
-* MySQL (we've tested with 5.0.77 and 5.1.8) -- http://dev.mysql.com/downloads/
+* MySQL (we've tested with 5.1.41) -- http://dev.mysql.com/downloads/
 
 # Getting started: 
 1. Installing MySQL
