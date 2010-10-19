@@ -178,18 +178,7 @@ public class TestEmbeddedServer {
 		ref_connections.draw();
 		
 	}
-	
-//	private void try_unicode() { 
-//		
-//		KeyPair pair = generatedKeys.remove(0);
-//		threadPool.submit(new RegistrationRequest(pair, "éfadfdafåaüber"));
-//		
-//		try {
-//			Thread.sleep(5000);
-//		} catch( Exception e ) {}
-//		
-//	}
-	
+		
 	private void register_all() {
 		
 		registered.clear();
